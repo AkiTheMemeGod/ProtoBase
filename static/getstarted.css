@@ -1,0 +1,129 @@
+/* Futuristic and Modern Color Scheme */
+body {
+    margin: 0;
+    font-family: 'Arial', sans-serif;
+    color: #ffffff;
+    background: linear-gradient(135deg, #1e1e2f, #2b2b3d);
+}
+
+header {
+    background: linear-gradient(90deg, #6a00ff, #9e2fff);
+    padding: 20px 10%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.3);
+}
+
+header h1 {
+    font-size: 1.8rem;
+    margin: 0;
+}
+
+header nav ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+}
+
+header nav ul li {
+    margin: 0 15px;
+}
+
+header nav ul li a {
+    text-decoration: none;
+    color: #ffffff;
+    font-weight: bold;
+    transition: color 0.3s;
+}
+
+header nav ul li a:hover {
+    color: #ffe600;
+}
+
+.container {
+    padding: 40px 10%;
+    text-align: center;
+}
+
+.container h1, .container h2 {
+
+    margin-bottom: 20px;
+    font-size: 2.5rem;
+}
+
+.container p, .container ol, .container table, .container pre {
+
+    font-size: 1.2rem;
+    line-height: 1.6;
+}
+
+.highlighted-section {
+    background: rgba(255, 255, 255, 0.1);
+                padding: 50px 20%;
+
+    border-radius: 10px;
+    backdrop-filter: blur(5px);
+    margin-bottom: 40px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+}
+
+table thead {
+    background: linear-gradient(90deg, #6a00ff, #9e2fff);
+}
+
+table th, table td {
+    padding: 10px;
+    text-align: left;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+table th {
+    color: #ffffff;
+    font-weight: bold;
+}
+
+table tbody tr:nth-child(odd) {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.example pre {
+    background: #2b2b3d;
+    color: #ffe600;
+    padding: 15px;
+    border-radius: 10px;
+    overflow-x: auto;
+    font-family: 'Courier New', Courier, monospace;
+}
+
+footer {
+    text-align: center;
+    padding: 20px;
+    background: #2b2b3d;
+}
+
+footer p {
+    margin: 0;
+    color: #ffffff;
+}
+
+@media (max-width: 768px) {
+    header nav ul {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    header nav ul li {
+        margin: 10px 0;
+    }
+
+    .container {
+        padding: 20px;
+    }
+}

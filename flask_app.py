@@ -21,6 +21,10 @@ def close_db(exception):
 def homepage():
     return render_template("index.html")
 
+@app.route('/get-started')
+def get_started():
+    return render_template('get-started.html')
+
 
 @app.route("/auth_api/email-signup/")
 def signup_email():

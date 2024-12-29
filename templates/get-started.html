@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ProtoBase - Get Started</title>
+    <link rel="stylesheet" href="../static/getstarted.css">
+</head>
+<body>
+    <header>
+        <h1>ProtoBase</h1>
+        <nav>
+            <ul>
+                <li><a href="/">Home</a></li>
+                <li><a href="#quickstart">Quick Start</a></li>
+                <li><a href="#endpoints">API Endpoints</a></li>
+                <li><a href="#examples">Examples</a></li>
+            </ul>
+        </nav>
+    </header>
+    <div class="container">
+        <!-- Introduction -->
+        <section id="introduction">
+            <h1>Get Started with ProtoBase</h1>
+            <p>
+                Welcome to ProtoBase! Follow this guide to integrate and use our powerful backend platform for your application.
+                Explore the API endpoints, check examples, and learn how to implement them seamlessly.
+            </p>
+        </section>
+
+        <!-- Quick Start -->
+        <section id="quickstart" class="highlighted-section">
+            <h2>Quick Start</h2>
+            <ol>
+                <li>Sign up for ProtoBase to get your API key.</li>
+                <li>Use our RESTful API to interact with your backend.</li>
+                <li>Leverage pre-built authentication methods and data management tools.</li>
+            </ol>
+            <p>
+                ProtoBase supports both REST and GraphQL endpoints for maximum flexibility.
+                <a href="#examples">Jump to examples</a> to see the API in action.
+            </p>
+        </section>
+
+        <!-- API Endpoints -->
+        <section id="endpoints">
+            <h2>API Endpoints</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Endpoint</th>
+                        <th>Method</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>/auth_api/email-signup</code></td>
+                        <td>GET</td>
+                        <td>Sign up with email, username, and password.</td>
+                    </tr>
+                    <tr>
+                        <td><code>/auth_api/user-signup</code></td>
+                        <td>GET</td>
+                        <td>Sign up with username and password.</td>
+                    </tr>
+                    <tr>
+                        <td><code>/auth_api/email-signin</code></td>
+                        <td>GET</td>
+                        <td>Log in using email, username, and password.</td>
+                    </tr>
+                    <tr>
+                        <td><code>/auth_api/user-signin</code></td>
+                        <td>GET</td>
+                        <td>Log in using username and password.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <!-- Examples -->
+        <section id="examples">
+            <h2>Examples</h2>
+            <article class="example">
+                <h3>Email Signup</h3>
+                <pre><code>
+GET /auth_api/email-signup?usr=johndoe&pwd=securepassword123&email=johndoe@example.com
+Response:
+{
+    "message": "User Successfully SignedUp",
+    "status-code": 200
+}
+                </code></pre>
+            </article>
+            <article class="example">
+                <h3>Email Signin</h3>
+                <pre><code>
+GET /auth_api/email-signin?usr=johndoe&pwd=securepassword123&email=johndoe@example.com
+Response:
+{
+    "message": "User Successfully Logged in",
+    "status-code": 200
+}
+                </code></pre>
+            </article>
+            <article class="example">
+                <h3>Username Signup</h3>
+                <pre><code>
+GET /auth_api/user-signup?usr=johndoe&pwd=securepassword123
+Response:
+{
+    "message": "User Successfully SignedUp",
+    "status-code": 200
+}
+                </code></pre>
+            </article>
+        </section>
+
+        <!-- Footer -->
+        <footer>
+            <p>&copy; 2024 ProtoBase. All rights reserved.</p>
+        </footer>
+    </div>
+</body>
+</html>
