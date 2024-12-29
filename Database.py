@@ -49,12 +49,21 @@ class ProtoBaseAuthentication(Helpers):
         cur = self.con.cursor()
         cur.execute(f"SELECT password, email FROM authwithemail WHERE username=?", (username, ))
         details = cur.fetchone()
-        return (password, email, ) == details
+        if not details:
+            return True, 400
+        elif (password, email, ) == details:
+            return True, 200
+        else:
+            return False, 400
 
     def signin_with_username(self, username, password):
         cur = self.con.cursor()
         cur.execute(f"SELECT password FROM authwithoutemail WHERE username=?", (username,))
         details = cur.fetchone()
-        return (password,) == details
-
+        if not details:
+            return True, 400
+        elif (password, ) == details:
+            return True, 200
+        else:
+            return False, 400
 
