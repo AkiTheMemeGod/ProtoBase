@@ -42,40 +42,34 @@ def swagger_ui():
     return render_template('swagger.html')
 
 
-@app.route('/signup', methods=['GET', 'POST'])
+@app.route('/signup', methods=['POST'])
 def signup():
-    if request.method == 'GET':
-        return render_template('signup.html')
-    elif request.method == 'POST':
-        data = request.get_json()
-        username = data.get("username")
-        password = data.get("password")
-        con = get_db()
-        db = ProtoBaseAuthentication(con)
-        status, token = db.assign_api_token(username, password)
-        if status:
-            return jsonify(success=True, api_token=token)
-        else:
-            return jsonify(success=False, message="Signup failed. User may already exist.")
+    data = request.get_json()
+    username = data.get("username")
+    password = data.get("password")
+    con = get_db()
+    db = ProtoBaseAuthentication(con)
+    status, token = db.assign_api_token(username, password)
+    if status:
+        return jsonify(success=True, api_token=token)
+    else:
+        return jsonify(success=False, message="Signup failed. User may already exist.")
 
 
-@app.route('/signin', methods=['GET', 'POST'])
+@app.route('/signin', methods=['POST'])
 def signin():
-    if request.method == 'GET':
-        return render_template('signin.html')
-    elif request.method == 'POST':
-        data = request.get_json()
-        username = data.get("username")
-        password = data.get("password")
-        con = get_db()
-        db = ProtoBaseAuthentication(con)
-        cur = con.cursor()
-        cur.execute("SELECT token FROM dev_api_tokens WHERE username=? AND password=?", (username, password))
-        result = cur.fetchone()
-        if result:
-            return jsonify(success=True, api_token=result[0])
-        else:
-            return jsonify(success=False, message="Signin failed. Incorrect credentials.")
+    data = request.get_json()
+    username = data.get("username")
+    password = data.get("password")
+    con = get_db()
+    db = ProtoBaseAuthentication(con)
+    cur = con.cursor()
+    cur.execute("SELECT token FROM dev_api_tokens WHERE username=? AND password=?", (username, password))
+    result = cur.fetchone()
+    if result:
+        return jsonify(success=True, api_token=result[0])
+    else:
+        return jsonify(success=False, message="Signin failed. Incorrect credentials.")
 
 
 @app.route("/auth_api/email-signup/")

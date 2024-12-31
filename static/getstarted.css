@@ -1,9 +1,17 @@
-/* Futuristic and Modern Color Scheme */
-body {
+/* General Reset */
+body, h1, h2, p, a, input, button {
     margin: 0;
-    font-family: 'Arial', sans-serif;
-    color: #ffffff;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
     background: linear-gradient(135deg, #1e1e2f, #2b2b3d);
+    color: #fff;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
 }
 
 header {
@@ -15,16 +23,11 @@ header {
     box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.3);
 }
 
-header h1 {
-    font-size: 1.8rem;
-    margin: 0;
-}
-
 header nav ul {
     list-style: none;
-    padding: 0;
-    margin: 0;
     display: flex;
+    justify-content: center;
+    padding: 0;
 }
 
 header nav ul li {
@@ -33,97 +36,73 @@ header nav ul li {
 
 header nav ul li a {
     text-decoration: none;
-    color: #ffffff;
+    color: #fff;
     font-weight: bold;
-    transition: color 0.3s;
-}
-
-header nav ul li a:hover {
-    color: #ffe600;
 }
 
 .container {
-    padding: 40px 10%;
-    text-align: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-grow: 1;
 }
 
-.container h1, .container h2 {
-
-    margin-bottom: 20px;
-    font-size: 2.5rem;
-}
-
-.container p, .container ol, .container table, .container pre {
-
-    font-size: 1.2rem;
-    line-height: 1.6;
-}
-
-.highlighted-section {
-    background: rgba(255, 255, 255, 0.1);
-                padding: 50px 20%;
-
+.form-container {
+    background: #2b2b3d;
     border-radius: 10px;
-    backdrop-filter: blur(5px);
-    margin-bottom: 40px;
-}
-
-table {
+    padding: 30px 20px;
+    text-align: center;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    max-width: 400px;
     width: 100%;
-    border-collapse: collapse;
-    margin: 20px 0;
 }
 
-table thead {
-    background: linear-gradient(90deg, #6a00ff, #9e2fff);
+.form-container h2 {
+    margin-bottom: 20px;
 }
 
-table th, table td {
+input {
+    display: block;
+    width: 100%;
+    margin: 10px 0;
     padding: 10px;
-    text-align: left;
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
 }
 
-table th {
-    color: #ffffff;
+button {
+    background: #6a00ff;
+    color: #fff;
+    border: none;
+    padding: 10px;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background 0.3s;
+    width: 100%;
+}
+
+button:hover {
+    background: #9e2fff;
+}
+
+p {
+    margin-top: 10px;
+    font-size: 14px;
+}
+
+a {
+    color: #6a00ff;
+    text-decoration: none;
     font-weight: bold;
+    cursor: pointer;
 }
 
-table tbody tr:nth-child(odd) {
-    background: rgba(255, 255, 255, 0.05);
+a:hover {
+    color: #9e2fff;
 }
 
-.example pre {
-    background: #2b2b3d;
-    color: #ffe600;
-    padding: 15px;
-    border-radius: 10px;
-    overflow-x: auto;
-    font-family: 'Courier New', Courier, monospace;
-}
-
-footer {
-    text-align: center;
-    padding: 20px;
-    background: #2b2b3d;
-}
-
-footer p {
-    margin: 0;
-    color: #ffffff;
-}
-
-@media (max-width: 768px) {
-    header nav ul {
-        flex-direction: column;
-        align-items: center;
-    }
-
-    header nav ul li {
-        margin: 10px 0;
-    }
-
-    .container {
-        padding: 20px;
-    }
+.hidden {
+    display: none;
 }

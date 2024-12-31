@@ -54,6 +54,11 @@ class ApiToken(Helpers):
         tokens = [i[0] for i in tokens]
         return token in tokens
 
+    def update_token_usage(self, token):
+        cur = self.con.cursor()
+        cur.execute("UPDATE dev_api_tokens SET uses = uses + 1 WHERE token=?", (token,))
+        self.con.commit()
+
 
 class ProtoBaseAuthentication(ApiToken):
 
@@ -63,6 +68,7 @@ class ProtoBaseAuthentication(ApiToken):
             cur = self.con.cursor()
             if not self.duplicate_email_check(email):
                 cur.execute("INSERT INTO authwithemail VALUES (?,?,?)", (username, password, email))
+                self.update_token_usage(token)
                 self.con.commit()
                 self.con.close()
                 return 200
@@ -76,6 +82,8 @@ class ProtoBaseAuthentication(ApiToken):
             cur = self.con.cursor()
             if not self.duplicate_username_check(username, "authwithoutemail"):
                 cur.execute("INSERT INTO authwithoutemail VALUES (?,?)", (username, password))
+                self.update_token_usage(token)
+
                 self.con.commit()
                 self.con.close()
                 return 200
@@ -93,6 +101,8 @@ class ProtoBaseAuthentication(ApiToken):
             if not details:
                 return True, 400
             elif (password, email, ) == details:
+                self.update_token_usage(token)
+
                 return True, 200
             else:
                 return False, 400
@@ -108,12 +118,11 @@ class ProtoBaseAuthentication(ApiToken):
             if not details:
                 return True, 400
             elif (password, ) == details:
+                self.update_token_usage(token)
+
                 return True, 200
             else:
                 return False, 400
         else:
             return True, 500
 
-
-d = ApiToken()
-d.validate_token("adasdasd")
