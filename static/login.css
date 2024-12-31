@@ -1,0 +1,89 @@
+/* General reset */
+body, h1, p, a, input, button {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Body styling */
+body {
+    font-family: 'Poppins', sans-serif;
+    background: linear-gradient(90deg, #6a00ff, #9e2fff);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Login container */
+.login-container {
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+    width: 100%;
+    max-width: 400px;
+    padding: 20px 30px;
+    text-align: center;
+}
+
+/* Title */
+.login-container h1 {
+    font-size: 24px;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 20px;
+}
+
+/* Form groups */
+.form-group {
+    margin-bottom: 20px;
+}
+
+input[type="text"], input[type="password"] {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 16px;
+    font-family: inherit;
+    outline: none;
+    transition: border 0.3s;
+}
+
+/* Input focus effect */
+input[type="text"]:focus, input[type="password"]:focus {
+    border-color: #6a00ff;
+}
+
+/* Button */
+.btn-login {
+            background: linear-gradient(90deg, #9e2fff, #6a00ff);
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 10px 15px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.3s;
+    width: 100%;
+}
+
+.btn-login:hover {
+            background: linear-gradient(90deg, #6a00ff, #9e2fff);
+}
+
+/* Output area */
+.output {
+    margin-top: 15px;
+    font-size: 14px;
+    color: #333;
+    word-wrap: break-word;
+}
+
+/* Error message */
+.error {
+    color: red;
+    font-size: 14px;
+    margin-top: 10px;
+}
