@@ -1,4 +1,3 @@
-import sqlite3
 import sqlite3 as sq
 import secrets as st
 
@@ -40,12 +39,18 @@ class ApiToken(Helpers):
                 cur.execute("INSERT INTO dev_api_tokens VALUES (?, ?, ?, ?)", (username, password, token, 0))
                 self.con.commit()
                 return True, token
-            except sqlite3.IntegrityError:
+            except sq.IntegrityError:
                 return False, "Database error while assigning token."
         else:
             cur.execute('SELECT token FROM dev_api_tokens WHERE username=?', (username,))
             token = cur.fetchone()[0]
             return True, token
+
+    def retrieve_token(self, username, password):
+        cur = self.con.cursor()
+        cur.execute("SELECT token FROM dev_api_tokens WHERE username=? AND password=?", (username, password))
+        return cur.fetchone()
+
 
     def validate_token(self, token):
         cur = self.con.cursor()
@@ -125,4 +130,3 @@ class ProtoBaseAuthentication(ApiToken):
                 return False, 400
         else:
             return True, 500
-

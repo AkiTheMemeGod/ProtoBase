@@ -63,9 +63,7 @@ def signin():
     password = data.get("password")
     con = get_db()
     db = ProtoBaseAuthentication(con)
-    cur = con.cursor()
-    cur.execute("SELECT token FROM dev_api_tokens WHERE username=? AND password=?", (username, password))
-    result = cur.fetchone()
+    result = db.retrieve_token(username, password)
     if result:
         return jsonify(success=True, api_token=result[0])
     else:
@@ -84,7 +82,7 @@ def signup_email():
         s = db.signup_with_email(usr, pwd, email, token)
 
         if s == 200:
-            return jsonify({"message": "User Successfully SignedUp", "status-code": 400})
+            return jsonify({"message": "User Successfully SignedUp", "status-code": 200})
         elif s == 500:
             return jsonify({"message": "INVALID API TOKEN", "status-code": 500})
         else:

@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ProtoBase - Get Started</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Monospace:wght@400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../static/getstarted.css">
 </head>
 <body>
@@ -26,7 +26,7 @@
                 <input type="text" id="signinUsername" placeholder="Username">
                 <input type="password" id="signinPassword" placeholder="Password">
                 <button type="submit" class="btn">Sign In</button>
-                <div id="signinOutput"></div>
+                <div id="signinOutput" class="output"></div>
             </form>
             <p>New here? <a href="#" onclick="showSignUp()">Sign up</a></p>
         </div>
@@ -38,79 +38,13 @@
                 <input type="text" id="signupUsername" placeholder="Username">
                 <input type="password" id="signupPassword" placeholder="Password">
                 <button type="submit" class="btn">Sign Up</button>
-                <div id="signupOutput"></div>
+                <div id="signupOutput" class="output"></div>
             </form>
             <p>Already have an account? <a href="#" onclick="showSignIn()">Sign in</a></p>
         </div>
     </div>
-    <script>
-        // Sign-in form submission
-        document.getElementById("signinForm").addEventListener("submit", async function(event) {
-            event.preventDefault();
-            const username = document.getElementById("signinUsername").value;
-            const password = document.getElementById("signinPassword").value;
-            const output = document.getElementById("signinOutput");
-            output.innerHTML = "<p>Processing...</p>";
 
-            try {
-                const response = await fetch('/signin', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ username, password })
-                });
-                const result = await response.json();
-                if (result.success) {
-                    output.innerHTML = `
-                        <p>Signin Successful!</p>
-                        <p>Your API Token:</p>
-                        <p class="API-Token">${result.api_token}</p>
-                    `;
-                } else {
-                    output.innerHTML = `<p style="color: red;">${result.message || "Signin failed!"}</p>`;
-                }
-            } catch (error) {
-                output.innerHTML = `<p style="color: red;">Server error. Please try again later.</p>`;
-            }
-        });
+    <script src="../static/getstarted.js" charset="UTF-8"> </script>
 
-        // Sign-up form submission
-        document.getElementById("signupForm").addEventListener("submit", async function(event) {
-            event.preventDefault();
-            const username = document.getElementById("signupUsername").value;
-            const password = document.getElementById("signupPassword").value;
-            const output = document.getElementById("signupOutput");
-            output.innerHTML = "<p>Processing...</p>";
-
-            try {
-                const response = await fetch('/signup', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ username, password })
-                });
-                const result = await response.json();
-                if (result.success) {
-                    output.innerHTML = `
-                        <p>Signup Successful!</p>
-                        <p>Your API Token:</p>
-                        <p class="API-Token">${result.api_token}</p>
-                    `;
-                } else {
-                    output.innerHTML = `<p style="color: red;">${result.message || "Signup failed!"}</p>`;
-                }
-            } catch (error) {
-                output.innerHTML = `<p style="color: red;">Server error. Please try again later.</p>`;
-            }
-        });
-
-        function showSignUp() {
-            document.getElementById('sign-in-form').classList.add('hidden');
-            document.getElementById('sign-up-form').classList.remove('hidden');
-        }
-
-        function showSignIn() {
-            document.getElementById('sign-up-form').classList.add('hidden');
-            document.getElementById('sign-in-form').classList.remove('hidden');
-        }
-    </script>
 </body>
 </html>
