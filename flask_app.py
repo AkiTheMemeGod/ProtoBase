@@ -1,7 +1,10 @@
 from flask import *
+from flask_cors import CORS
 import sqlite3 as sq
 from Database import ProtoBaseAuthentication
+from schemas import openapi_schema
 app = Flask(__name__)
+CORS(app)
 
 
 def get_db():
@@ -25,6 +28,18 @@ def homepage():
 @app.route('/get-started')
 def get_started():
     return render_template('get-started.html')
+
+
+@app.route('/openapi.json')
+def openapi():
+    """Serve the OpenAPI schema."""
+    return jsonify(openapi_schema)
+
+
+@app.route('/docs')
+def swagger_ui():
+    """Serve the Swagger UI."""
+    return render_template('swagger.html')
 
 
 @app.route('/signup', methods=['GET', 'POST'])
