@@ -4,8 +4,7 @@
     <meta charset="UTF-8">
     <title>Dashboard</title>
     <link rel="stylesheet" href="/static/dashboard.css">
-
-
+    <link rel="stylesheet" href="/static/fontawesome/css/all.min.css">
 </head>
 <body>
     <div class="container">
@@ -13,30 +12,40 @@
         <p><strong>Welcome back, </strong> {{ username }}</p>
         <form class="project-form" action="/add_project" method="post">
             <input type="text" name="project_name" placeholder="Project Name" required>
-            <button type="submit">Generate Token</button>
+            <button type="submit"><i class="fas fa-plus"></i></button>
         </form>
-<table>
-    <tr>
-        <th>Project Name</th>
-        <th>Token</th>
-        <th>Uses</th>
-        <th>Action</th>
-    </tr>
-    {% for project, token, uses in projects %}
-    <tr>
-        <td>{{ project }}</td>
-        <td>{{ token }}</td>
-        <td>{{ uses }}</td>
-        <td>
-            <form action="/delete_project" method="post" style="display:inline;">
-                <input type="hidden" name="project_name" value="{{ project }}">
-                <button type="submit">Delete</button>
-            </form>
-        </td>
-    </tr>
-    {% endfor %}
-</table>
-        <button class="logout-button" onclick="window.location.href='/logout'">Logout</button>
+        <table>
+            <tr>
+                <th>Project Name</th>
+                <th>Token</th>
+                <th>Uses</th>
+                <th>Action</th>
+            </tr>
+            {% for project, token, uses in projects %}
+            <tr>
+                <td>{{ project }}</td>
+                <td>{{ token }}</td>
+                <td>{{ uses }}</td>
+                <td>
+                    <form action="/delete_project" method="post" style="display:inline;">
+                        <input type="hidden" name="project_name" value="{{ project }}">
+                        <button type="submit"><i class="fas fa-trash"></i></button>
+                    </form>
+                    <button onclick="copyToClipboard('{{ token }}')"><i class="fas fa-copy"></i></button>
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
+        <button class="logout-button" onclick="window.location.href='/logout'"><i class="fas fa-sign-out-alt"></i> <strong> Logout</strong></button>
     </div>
+    <script>
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(function() {
+                alert('Token copied to clipboard');
+            }, function(err) {
+                console.error('Could not copy text: ', err);
+            });
+        }
+    </script>
 </body>
 </html>
