@@ -3,44 +3,39 @@
 <head>
     <meta charset="UTF-8">
     <title>Dashboard</title>
-    <style>
-        body {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-            font-family: Arial, sans-serif;
-        }
-        .container {
-            text-align: center;
-        }
-        .container h1 {
-            margin-bottom: 20px;
-        }
-        .container p {
-            margin: 5px 0;
-        }
-        .logout-button {
-            margin-top: 20px;
-            padding: 10px 20px;
-            background-color: #ff4b5c;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 16px;
-        }
-        .logout-button:hover {
-            background-color: #ff1f3a;
-        }
-    </style>
+    <link rel="stylesheet" href="/static/dashboard.css">
+
+
 </head>
 <body>
     <div class="container">
         <h1>Welcome to your Dashboard</h1>
-        <p><strong>Username:</strong> {{ username }}</p>
-        <p><strong>Token:</strong> {{ token }}</p>
+        <p><strong>Welcome back, </strong> {{ username }}</p>
+        <form class="project-form" action="/add_project" method="post">
+            <input type="text" name="project_name" placeholder="Project Name" required>
+            <button type="submit">Generate Token</button>
+        </form>
+<table>
+    <tr>
+        <th>Project Name</th>
+        <th>Token</th>
+        <th>Uses</th>
+        <th>Action</th>
+    </tr>
+    {% for project, token, uses in projects %}
+    <tr>
+        <td>{{ project }}</td>
+        <td>{{ token }}</td>
+        <td>{{ uses }}</td>
+        <td>
+            <form action="/delete_project" method="post" style="display:inline;">
+                <input type="hidden" name="project_name" value="{{ project }}">
+                <button type="submit">Delete</button>
+            </form>
+        </td>
+    </tr>
+    {% endfor %}
+</table>
         <button class="logout-button" onclick="window.location.href='/logout'">Logout</button>
     </div>
 </body>
