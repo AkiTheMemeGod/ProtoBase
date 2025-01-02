@@ -1,10 +1,13 @@
 from flask import *
 from flask_cors import CORS
-import sqlite3 as sq
-from Database import ProtoBaseAuthentication
+from Database import ProtoBaseAuthentication, DevDashboard
 from schemas import openapi_schema
+import sqlite3 as sq
+
 app = Flask(__name__)
 CORS(app)
+
+app.secret_key = "#$TL#$T#4MH3l3h4o8jkwbfdo8ho8234jbsdf"
 
 
 def get_db():
@@ -13,8 +16,22 @@ def get_db():
     return g.db
 
 
+@app.before_request
+def make_session_permanent():
+    session.permanent = False
+
+
+@app.route("/logout")
+def logout():
+    session.pop("user_signed_in", None)
+    session.pop("username", None)
+    session.pop("token", None)
+
+    return redirect(url_for("get_started"))
+
+
 @app.teardown_appcontext
-def close_db(exception):
+def close_db(exception=None):
     db = g.pop("db", None)
     if db is not None:
         db.close()
@@ -27,7 +44,9 @@ def homepage():
 
 @app.route('/get-started')
 def get_started():
-    return render_template('get-started.html')
+    if not session.get("user_signed_in"):
+        return render_template("get-started.html")
+    return redirect(url_for("dashboard"))
 
 
 @app.route('/openapi.json')
@@ -51,7 +70,10 @@ def signup():
     db = ProtoBaseAuthentication(con)
     status, token = db.assign_api_token(username, password)
     if status:
-        return jsonify(success=True, api_token=token)
+        session["user_signed_in"] = True
+        session["username"] = username
+        session["token"] = token
+        return jsonify(success=True)
     else:
         return jsonify(success=False, message="Signup failed. User may already exist.")
 
@@ -62,12 +84,24 @@ def signin():
     username = data.get("username")
     password = data.get("password")
     con = get_db()
-    db = ProtoBaseAuthentication(con)
-    result = db.retrieve_token(username, password)
+    db = DevDashboard(con)
+    result = db.validate_developer(username, password)
     if result:
-        return jsonify(success=True, api_token=result[0])
+        session["user_signed_in"] = True
+        session["username"] = username
+        session["token"] = db.retrieve_token(username, password)[0]
+        return jsonify(success=True)
     else:
         return jsonify(success=False, message="Signin failed. Incorrect credentials.")
+
+
+@app.route("/dashboard")
+def dashboard():
+    if not session.get("user_signed_in"):
+        return redirect(url_for("get_started"))
+    username = session.get("username")
+    token = session.get("token")
+    return render_template("dashboard.html", username=username, token=token)
 
 
 @app.route("/auth_api/email-signup/")
