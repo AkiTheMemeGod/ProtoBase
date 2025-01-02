@@ -14,12 +14,8 @@ document.getElementById("signinForm").addEventListener("submit", async function(
         });
         const result = await response.json();
         if (result.success) {
-            output.innerHTML = `
-                <p>Signin Successful!</p>
-                <p>Your API Token:</p>
-                <p class="API-Token" id="signinToken">${result.api_token}</p>
-                <button onclick="copyToClipboard('signinToken')">Copy to Clipboard</button>
-            `;
+            // Redirect to the dashboard
+            window.location.href = "/dashboard";
         } else {
             output.innerHTML = `<p style="color: red;">${result.message || "Signin failed!"}</p>`;
         }
@@ -27,6 +23,7 @@ document.getElementById("signinForm").addEventListener("submit", async function(
         output.innerHTML = `<p style="color: red;">Server error. Please try again later.</p>`;
     }
 });
+
 
 // Sign-up form submission
 document.getElementById("signupForm").addEventListener("submit", async function(event) {
@@ -44,12 +41,8 @@ document.getElementById("signupForm").addEventListener("submit", async function(
         });
         const result = await response.json();
         if (result.success) {
-            output.innerHTML = `
-                <p>Signup Successful!</p>
-                <p>Your API Token:</p>
-                <p class="API-Token" id="signupToken">${result.api_token}</p>
-                <button onclick="copyToClipboard('signupToken')">Copy to Clipboard</button>
-            `;
+
+            window.location.href = "/dashboard";
         } else {
             output.innerHTML = `<p style="color: red;">${result.message || "Signup failed!"}</p>`;
         }
@@ -57,6 +50,7 @@ document.getElementById("signupForm").addEventListener("submit", async function(
         output.innerHTML = `<p style="color: red;">Server error. Please try again later.</p>`;
     }
 });
+
 
 function showSignUp() {
     document.getElementById('sign-in-form').classList.add('hidden');

@@ -4,57 +4,62 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ProtoBase - Future of Backend Development</title>
-    <link rel="stylesheet" href="../static/index.css">
-
+    <link rel="stylesheet" href="/static/index.css">
+    <link rel="icon" href="/static/favicon.ico" type="image/x-icon">
+    <meta name="description" content="ProtoBase - Revolutionizing backend development with cutting-edge simplicity.">
+    <meta property="og:title" content="ProtoBase - Future of Backend Development">
+    <meta property="og:description" content="Create, scale, and manage backend solutions effortlessly with ProtoBase.">
+    <meta property="og:image" content="/static/og-image.png">
+    <meta property="og:url" content="https://www.protobase.pythonanywhere.com">
+    <meta name="twitter:card" content="summary_large_image">
 </head>
 <body>
     <header>
         <h1>ProtoBase</h1>
         <nav>
             <ul>
-                <li><a href="#">Home</a></li>
+                <li><a href="/">Home</a></li>
                 <li><a href="#features">Features</a></li>
                 <li><a href="#about">About</a></li>
                 <li><a href="#contact">Contact</a></li>
-
             </ul>
         </nav>
     </header>
-    <div class="container">
-        <h1>Welcome to ProtoBase</h1>
-        <p>Revolutionizing backend development with cutting-edge simplicity.</p>
-        <p>Create, scale, and manage backend solutions effortlessly with ProtoBase.</p>
-
-        <div class="features" id="features">
+    <main class="container">
+        <section class="hero">
+            <h1>Welcome to ProtoBase</h1>
+            <p>Revolutionizing backend development with cutting-edge simplicity.</p>
+<div class="cta">
+            <button onclick="window.location.href='/get-started'">Get Started</button>
+        </div>        </section>
+        <section class="features" id="features">
             <h2>Key Features</h2>
             <ul>
-                <li><strong>User Authentication:</strong> Secure, fast, and reliable access systems.</li>
-                <li><strong>Real-time Data Sync:</strong> Instant updates with minimal latency.</li>
-                <li><strong>Scalable APIs:</strong> REST & GraphQL endpoints tailored for growth.</li>
-                <li><strong>Integrated Analytics:</strong> Monitor and improve your app’s performance.</li>
-                <li><strong>Customizable Webhooks:</strong> Automate workflows seamlessly.</li>
+                <li><img src="/static/icons/authentication.png" alt="User Authentication Icon"><strong>User Authentication:</strong> Secure, fast, and reliable access systems.</li>
+                <li><img src="/static/icons/realtime.png" alt="Real-time Data Sync Icon"><strong>Real-time Data Sync:</strong> Instant updates with minimal latency.</li>
+                <li><img src="/static/icons/api.png" alt="Scalable APIs Icon"><strong>Scalable APIs:</strong> REST & GraphQL endpoints tailored for growth.</li>
+                <li><img src="/static/icons/analytics.png" alt="Integrated Analytics Icon"><strong>Integrated Analytics:</strong> Monitor and improve your app’s performance.</li>
+                <li><img src="/static/icons/webhooks.png" alt="Customizable Webhooks Icon"><strong>Customizable Webhooks:</strong> Automate workflows seamlessly.</li>
             </ul>
-        </div>
+        </section>
 
-        <div class="about" id="about">
+        <section class="about" id="about">
             <h2>About ProtoBase</h2>
             <p>ProtoBase empowers developers to build, deploy, and scale applications without distractions. Perfect for beginners and professionals alike.</p>
-        </div>
-
-        <div class="contact" id="contact">
+        </section>
+        <section class="contact" id="contact">
             <h2>Contact Us</h2>
             <p>Have questions? We’re here to help:</p>
             <p><strong>Email:</strong> k.akashkumar@gmail.com</p>
-        </div>
-
-        <div class="cta">
-            <button onclick="window.location.href='/get-started'">Get Started</button>
-        </div>
-        <br>
-
-    </div>
+        </section>
+    </main>
     <footer>
         <p>&copy; 2024 ProtoBase. All rights reserved.</p>
+        <div class="social-media">
+            <a href="https://twitter.com/protobase" target="_blank"><img src="/static/icons/twitter.png" alt="Twitter"></a>
+            <a href="https://facebook.com/protobase" target="_blank"><img src="/static/icons/facebook.png" alt="Facebook"></a>
+            <a href="https://linkedin.com/company/protobase" target="_blank"><img src="/static/icons/linkedin.png" alt="LinkedIn"></a>
+        </div>
     </footer>
 </body>
 </html>
