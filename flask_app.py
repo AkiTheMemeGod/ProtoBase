@@ -21,11 +21,21 @@ def make_session_permanent():
     session.permanent = False
 
 
+@app.route('/delete_project', methods=['POST'])
+def delete_project():
+    project_name = request.form.get('project_name')
+    username = session.get('username')
+    con = get_db()
+    db = DevDashboard(con)
+    success = db.delete_project(username, project_name)
+    return redirect(url_for('dashboard'))
+
+
 @app.route("/logout")
 def logout():
     session.pop("user_signed_in", None)
     session.pop("username", None)
-    session.pop("token", None)
+    # session.pop("token", None)
 
     return redirect(url_for("get_started"))
 
@@ -68,11 +78,11 @@ def signup():
     password = data.get("password")
     con = get_db()
     db = ProtoBaseAuthentication(con)
-    status, token = db.assign_api_token(username, password)
+    status = db.signup_developer(username, password)
     if status:
         session["user_signed_in"] = True
         session["username"] = username
-        session["token"] = token
+        # session["token"] = token
         return jsonify(success=True)
     else:
         return jsonify(success=False, message="Signup failed. User may already exist.")
@@ -89,10 +99,20 @@ def signin():
     if result:
         session["user_signed_in"] = True
         session["username"] = username
-        session["token"] = db.retrieve_token(username, password)[0]
+        # session["token"] = db.retrieve_token(username, password)[0]
         return jsonify(success=True)
     else:
         return jsonify(success=False, message="Signin failed. Incorrect credentials.")
+
+
+@app.route('/add_project', methods=['POST'])
+def add_project():
+    project_name = request.form.get('project_name')
+    username = session.get('username')
+    con = get_db()
+    db = DevDashboard(con)
+    token = db.add_project(username, project_name)
+    return redirect(url_for('dashboard'))
 
 
 @app.route("/dashboard")
@@ -100,9 +120,10 @@ def dashboard():
     if not session.get("user_signed_in"):
         return redirect(url_for("get_started"))
     username = session.get("username")
-    token = session.get("token")
-    return render_template("dashboard.html", username=username, token=token)
-
+    con = get_db()
+    db = DevDashboard(con)
+    projects = db.get_projects(username)
+    return render_template("dashboard.html", username=username, projects=projects)
 
 @app.route("/auth_api/email-signup/")
 def signup_email():
