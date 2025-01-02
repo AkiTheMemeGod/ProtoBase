@@ -1,5 +1,6 @@
 import sqlite3 as sq
 import secrets as st
+from security import ProtobaseSecurity
 
 
 class Helpers:
@@ -8,6 +9,7 @@ class Helpers:
             self.con = con
         else:
             self.con = sq.connect("Authentication.db", check_same_thread=False)
+        self.sec = ProtobaseSecurity()
 
     def duplicate_email_check(self, email):
         cur = self.con.cursor()
@@ -36,6 +38,7 @@ class ApiToken(Helpers):
         if not self.duplicate_username_check(username, "dev_api_tokens"):
             token = self.generate_api_token()
             try:
+                password = self.sec.encrypt(username=username, password=password)
                 cur.execute("INSERT INTO dev_api_tokens VALUES (?, ?, ?, ?)", (username, password, token, 0))
                 self.con.commit()
                 return True, token
@@ -48,9 +51,10 @@ class ApiToken(Helpers):
 
     def retrieve_token(self, username, password):
         cur = self.con.cursor()
+        password = self.sec.encrypt(username=username, password=password)
+
         cur.execute("SELECT token FROM dev_api_tokens WHERE username=? AND password=?", (username, password))
         return cur.fetchone()
-
 
     def validate_token(self, token):
         cur = self.con.cursor()
@@ -65,6 +69,18 @@ class ApiToken(Helpers):
         self.con.commit()
 
 
+class DevDashboard(ApiToken):
+
+    def validate_developer(self, username, password):
+        cur = self.con.cursor()
+        password = self.sec.encrypt(username=username, password=password)
+
+        data = (username, password)
+        cur.execute("SELECT username, password FROM dev_api_tokens")
+        creds = cur.fetchall()
+        return data in creds
+
+
 class ProtoBaseAuthentication(ApiToken):
 
     def signup_with_email(self, username, password, email, token):
@@ -72,6 +88,8 @@ class ProtoBaseAuthentication(ApiToken):
 
             cur = self.con.cursor()
             if not self.duplicate_email_check(email):
+                password = self.sec.encrypt(username, password, email)
+
                 cur.execute("INSERT INTO authwithemail VALUES (?,?,?)", (username, password, email))
                 self.update_token_usage(token)
                 self.con.commit()
@@ -86,6 +104,8 @@ class ProtoBaseAuthentication(ApiToken):
         if self.validate_token(token):
             cur = self.con.cursor()
             if not self.duplicate_username_check(username, "authwithoutemail"):
+                password = self.sec.encrypt(username, password)
+
                 cur.execute("INSERT INTO authwithoutemail VALUES (?,?)", (username, password))
                 self.update_token_usage(token)
 
@@ -99,7 +119,7 @@ class ProtoBaseAuthentication(ApiToken):
 
     def signin_with_email(self, username, password, email, token):
         if self.validate_token(token):
-
+            password = self.sec.encrypt(username, password, email)
             cur = self.con.cursor()
             cur.execute(f"SELECT password, email FROM authwithemail WHERE username=?", (username, ))
             details = cur.fetchone()
@@ -116,7 +136,7 @@ class ProtoBaseAuthentication(ApiToken):
 
     def signin_with_username(self, username, password, token):
         if self.validate_token(token):
-
+            password = self.sec.encrypt(username, password)
             cur = self.con.cursor()
             cur.execute(f"SELECT password FROM authwithoutemail WHERE username=?", (username,))
             details = cur.fetchone()
