@@ -1,6 +1,7 @@
 import sqlite3 as sq
 import secrets as st
 from security import ProtobaseSecurity
+import ast
 
 
 class Helpers:
@@ -33,34 +34,54 @@ class ApiToken(Helpers):
         token = st.token_urlsafe(64)
         return token
 
-    def assign_api_token(self, username, password):
+    def add_project(self, username, project_name):
         cur = self.con.cursor()
-        if not self.duplicate_username_check(username, "dev_api_tokens"):
-            token = self.generate_api_token()
-            try:
-                password = self.sec.encrypt(username=username, password=password)
-                cur.execute("INSERT INTO dev_api_tokens VALUES (?, ?, ?, ?)", (username, password, token, 0))
-                self.con.commit()
-                return True, token
-            except sq.IntegrityError:
-                return False, "Database error while assigning token."
-        else:
-            cur.execute('SELECT token FROM dev_api_tokens WHERE username=?', (username,))
-            token = cur.fetchone()[0]
-            return True, token
+        cur.execute("SELECT token FROM dev_api_tokens WHERE username=?", (username,))
+        projects = cur.fetchone()[0]
+        projects_dict = eval(projects)
+        if project_name in projects_dict:
+            return None
+        token = self.generate_api_token()
+        projects_dict[project_name] = token
+        cur.execute("UPDATE dev_api_tokens SET token=? WHERE username=?", (str(projects_dict), username))
+        self.con.commit()
+        return token
 
-    def retrieve_token(self, username, password):
+    def delete_project(self, username, project_name):
         cur = self.con.cursor()
-        password = self.sec.encrypt(username=username, password=password)
+        cur.execute("SELECT token FROM dev_api_tokens WHERE username=?", (username,))
+        projects = cur.fetchone()[0]
+        projects_dict = eval(projects)
+        if project_name in projects_dict:
+            del projects_dict[project_name]
+            cur.execute("UPDATE dev_api_tokens SET token=? WHERE username=?", (str(projects_dict), username))
+            self.con.commit()
+            return True
+        return False
 
-        cur.execute("SELECT token FROM dev_api_tokens WHERE username=? AND password=?", (username, password))
-        return cur.fetchone()
+    def get_projects(self, username):
+        try:
+            cur = self.con.cursor()
+            cur.execute("SELECT token, uses FROM dev_api_tokens WHERE username=?", (username,))
+            projects, uses = cur.fetchone()
+            projects_dict = eval(projects)
+            return [(project, token, uses) for project, token in projects_dict.items()]
+        except TypeError:
+            return []
 
     def validate_token(self, token):
         cur = self.con.cursor()
         cur.execute("SELECT token FROM dev_api_tokens")
-        tokens = cur.fetchall()
-        tokens = [i[0] for i in tokens]
+        projects = cur.fetchall()  # Fetch all rows
+
+        # Parse each dictionary string and extract values
+        tokens = []
+        for row in projects:
+            # The dictionary string is the first (and only) element in each tuple
+            dict_str = row[0]
+            parsed_dict = ast.literal_eval(dict_str)  # Safely parse string to dictionary
+            tokens.extend(parsed_dict.values())  # Add all dictionary values to the list
+
         return token in tokens
 
     def update_token_usage(self, token):
@@ -95,38 +116,6 @@ class DevDashboard(ApiToken):
 
         finally:
             self.con.close()
-
-    def add_project(self, username, project_name):
-        cur = self.con.cursor()
-        cur.execute("SELECT token FROM dev_api_tokens WHERE username=?", (username,))
-        projects = cur.fetchone()[0]
-        projects_dict = eval(projects)
-        if project_name in projects_dict:
-            return None
-        token = self.generate_api_token()
-        projects_dict[project_name] = token
-        cur.execute("UPDATE dev_api_tokens SET token=? WHERE username=?", (str(projects_dict), username))
-        self.con.commit()
-        return token
-
-    def delete_project(self, username, project_name):
-        cur = self.con.cursor()
-        cur.execute("SELECT token FROM dev_api_tokens WHERE username=?", (username,))
-        projects = cur.fetchone()[0]
-        projects_dict = eval(projects)
-        if project_name in projects_dict:
-            del projects_dict[project_name]
-            cur.execute("UPDATE dev_api_tokens SET token=? WHERE username=?", (str(projects_dict), username))
-            self.con.commit()
-            return True
-        return False
-
-    def get_projects(self, username):
-        cur = self.con.cursor()
-        cur.execute("SELECT token, uses FROM dev_api_tokens WHERE username=?", (username,))
-        projects, uses = cur.fetchone()
-        projects_dict = eval(projects)
-        return [(project, token, uses) for project, token in projects_dict.items()]
 
 
 class ProtoBaseAuthentication(DevDashboard):
