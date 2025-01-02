@@ -125,6 +125,7 @@ def dashboard():
     projects = db.get_projects(username)
     return render_template("dashboard.html", username=username, projects=projects)
 
+
 @app.route("/auth_api/email-signup/")
 def signup_email():
     usr = request.args.get('usr')
