@@ -1,24 +1,78 @@
 openapi_schema = {
     "openapi": "3.0.0",
     "info": {
-        "title": "Authentication API",
-        "description": "API for user authentication and token management.",
-        "version": "1.0.0"
+        "title": "Flask API Documentation",
+        "version": "1.0.0",
+        "description": "API documentation for the Flask application."
     },
     "paths": {
+        "/delete_project": {
+            "post": {
+                "summary": "Delete a project",
+                "description": "Deletes a project for the currently logged-in user.",
+                "parameters": [
+                    {
+                        "name": "project_name",
+                        "in": "formData",
+                        "required": True,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "302": {
+                        "description": "Redirects to the dashboard after deletion."
+                    }
+                }
+            }
+        },
+        "/logout": {
+            "get": {
+                "summary": "Logout user",
+                "description": "Logs out the currently logged-in user and redirects to the get-started page.",
+                "responses": {
+                    "302": {
+                        "description": "Redirects to the get-started page."
+                    }
+                }
+            }
+        },
+
+        "/get-started": {
+            "get": {
+                "summary": "Get Started",
+                "description": "Renders the get-started page or redirects to the dashboard if logged in.",
+                "responses": {
+                    "200": {
+                        "description": "Get-started page rendered."
+                    },
+                    "302": {
+                        "description": "Redirects to the dashboard."
+                    }
+                }
+            }
+        },
         "/signup": {
             "post": {
-                "summary": "User Signup",
-                "description": "Sign up a new user and return an API token.",
+                "summary": "Sign up",
+                "description": "Allows a new user to sign up.",
+                "parameters": [
+                    {"name": "username", "in": "query", "required": True, "schema": {"type": "string"}},
+                    {"name": "password", "in": "query", "required": True, "schema": {"type": "string"}},
+                ],
                 "requestBody": {
-                    "required": True,
                     "content": {
                         "application/json": {
                             "schema": {
                                 "type": "object",
                                 "properties": {
-                                    "username": {"type": "string"},
-                                    "password": {"type": "string"}
+                                    "username": {
+                                        "type": "string"
+                                    },
+                                    "password": {
+                                        "type": "string"
+                                    }
                                 },
                                 "required": ["username", "password"]
                             }
@@ -27,36 +81,34 @@ openapi_schema = {
                 },
                 "responses": {
                     "200": {
-                        "description": "Signup successful",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "success": {"type": "boolean"},
-                                        "api_token": {"type": "string"}
-                                    }
-                                }
-                            }
-                        }
+                        "description": "Signup success."
                     },
-                    "400": {"description": "Signup failed"}
+                    "400": {
+                        "description": "Signup failed."
+                    }
                 }
             }
         },
         "/signin": {
             "post": {
-                "summary": "User Signin",
-                "description": "Sign in an existing user and return their API token.",
+                "summary": "Sign in",
+                "description": "Authenticates a user.",
+                "parameters": [
+                    {"name": "username", "in": "query", "required": True, "schema": {"type": "string"}},
+                    {"name": "password", "in": "query", "required": True, "schema": {"type": "string"}},
+                ],
                 "requestBody": {
-                    "required": True,
                     "content": {
                         "application/json": {
                             "schema": {
                                 "type": "object",
                                 "properties": {
-                                    "username": {"type": "string"},
-                                    "password": {"type": "string"}
+                                    "username": {
+                                        "type": "string"
+                                    },
+                                    "password": {
+                                        "type": "string"
+                                    }
                                 },
                                 "required": ["username", "password"]
                             }
@@ -65,86 +117,221 @@ openapi_schema = {
                 },
                 "responses": {
                     "200": {
-                        "description": "Signin successful",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "success": {"type": "boolean"},
-                                        "api_token": {"type": "string"}
-                                    }
-                                }
-                            }
-                        }
+                        "description": "Signin success."
                     },
-                    "400": {"description": "Signin failed"}
+                    "400": {
+                        "description": "Signin failed."
+                    }
                 }
             }
         },
+        "/add_project": {
+            "post": {
+                "summary": "Add a project",
+                "description": "Adds a new project for the logged-in user.",
+                "parameters": [
+                    {
+                        "name": "project_name",
+                        "in": "formData",
+                        "required": True,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "302": {
+                        "description": "Redirects to the dashboard."
+                    }
+                }
+            }
+        },
+
         "/auth_api/email-signup/": {
             "get": {
                 "summary": "Email Signup",
-                "description": "Sign up with email and return a status message.",
+                "description": "Signup using email, username, and password.",
                 "parameters": [
-                    {"name": "usr", "in": "query", "required": True, "schema": {"type": "string"}},
-                    {"name": "pwd", "in": "query", "required": True, "schema": {"type": "string"}},
-                    {"name": "email", "in": "query", "required": True, "schema": {"type": "string"}},
-                    {"name": "token", "in": "query", "schema": {"type": "string"}}
+                    {
+                        "name": "usr",
+                        "in": "query",
+                        "required": True,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "pwd",
+                        "in": "query",
+                        "required": True,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "email",
+                        "in": "query",
+                        "required": True,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "token",
+                        "in": "query",
+                        "required": True,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
                 ],
                 "responses": {
-                    "200": {"description": "Signup successful"},
-                    "400": {"description": "Invalid input parameters"},
-                    "500": {"description": "Invalid API token"}
+                    "200": {
+                        "description": "Signup success."
+                    },
+                    "400": {
+                        "description": "Invalid input parameters."
+                    },
+                    "500": {
+                        "description": "Invalid API token."
+                    }
                 }
             }
         },
         "/auth_api/user-signup/": {
             "get": {
                 "summary": "Username Signup",
-                "description": "Sign up with username and return a status message.",
+                "description": "Signup using username and password.",
                 "parameters": [
-                    {"name": "usr", "in": "query", "required": True, "schema": {"type": "string"}},
-                    {"name": "pwd", "in": "query", "required": True, "schema": {"type": "string"}},
-                    {"name": "token", "in": "query", "schema": {"type": "string"}}
+                    {
+                        "name": "usr",
+                        "in": "query",
+                        "required": True,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "pwd",
+                        "in": "query",
+                        "required": True,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "token",
+                        "in": "query",
+                        "required": True,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
                 ],
                 "responses": {
-                    "200": {"description": "Signup successful"},
-                    "400": {"description": "Invalid input parameters"},
-                    "500": {"description": "Invalid API token"}
+                    "200": {
+                        "description": "Signup success."
+                    },
+                    "400": {
+                        "description": "Invalid input parameters."
+                    },
+                    "500": {
+                        "description": "Invalid API token."
+                    }
                 }
             }
         },
         "/auth_api/email-signin/": {
             "get": {
                 "summary": "Email Signin",
-                "description": "Sign in with email and return a status message.",
+                "description": "Signin using email, username, and password.",
                 "parameters": [
-                    {"name": "usr", "in": "query", "required": True, "schema": {"type": "string"}},
-                    {"name": "pwd", "in": "query", "required": True, "schema": {"type": "string"}},
-                    {"name": "email", "in": "query", "required": True, "schema": {"type": "string"}},
-                    {"name": "token", "in": "query", "schema": {"type": "string"}}
+                    {
+                        "name": "usr",
+                        "in": "query",
+                        "required": True,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "pwd",
+                        "in": "query",
+                        "required": True,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "email",
+                        "in": "query",
+                        "required": True,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "token",
+                        "in": "query",
+                        "required": True,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
                 ],
                 "responses": {
-                    "200": {"description": "Signin successful"},
-                    "400": {"description": "Invalid input parameters"},
-                    "500": {"description": "Invalid API token"}
+                    "200": {
+                        "description": "Signin success."
+                    },
+                    "400": {
+                        "description": "Invalid input parameters or incorrect credentials."
+                    },
+                    "500": {
+                        "description": "Invalid API token."
+                    }
                 }
             }
         },
         "/auth_api/user-signin/": {
             "get": {
                 "summary": "Username Signin",
-                "description": "Sign in with username and return a status message.",
+                "description": "Signin using username and password.",
                 "parameters": [
-                    {"name": "usr", "in": "query", "required": True, "schema": {"type": "string"}},
-                    {"name": "pwd", "in": "query", "required": True, "schema": {"type": "string"}},
-                    {"name": "token", "in": "query", "schema": {"type": "string"}}
+                    {
+                        "name": "usr",
+                        "in": "query",
+                        "required": True,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "pwd",
+                        "in": "query",
+                        "required": True,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "token",
+                        "in": "query",
+                        "required": True,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
                 ],
                 "responses": {
-                    "200": {"description": "Signin successful"},
-                    "400": {"description": "Invalid input parameters"},
-                    "500": {"description": "Invalid API token"}
+                    "200": {
+                        "description": "Signin success."
+                    },
+                    "400": {
+                        "description": "Invalid input parameters or incorrect credentials."
+                    },
+                    "500": {
+                        "description": "Invalid API token."
+                    }
                 }
             }
         }
