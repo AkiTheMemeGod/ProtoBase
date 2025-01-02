@@ -80,8 +80,56 @@ class DevDashboard(ApiToken):
         creds = cur.fetchall()
         return data in creds
 
+    def signup_developer(self, username, password):
+        try:
+            cur = self.con.cursor()
+            password = self.sec.encrypt(username=username, password=password)
 
-class ProtoBaseAuthentication(ApiToken):
+            data = (username, password, "{}", 0)
+            cur.execute("INSERT INTO dev_api_tokens VALUES (?,?,?,?)", data)
+            self.con.commit()
+            return True
+
+        except sq.IntegrityError:
+            return False
+
+        finally:
+            self.con.close()
+
+    def add_project(self, username, project_name):
+        cur = self.con.cursor()
+        cur.execute("SELECT token FROM dev_api_tokens WHERE username=?", (username,))
+        projects = cur.fetchone()[0]
+        projects_dict = eval(projects)
+        if project_name in projects_dict:
+            return None
+        token = self.generate_api_token()
+        projects_dict[project_name] = token
+        cur.execute("UPDATE dev_api_tokens SET token=? WHERE username=?", (str(projects_dict), username))
+        self.con.commit()
+        return token
+
+    def delete_project(self, username, project_name):
+        cur = self.con.cursor()
+        cur.execute("SELECT token FROM dev_api_tokens WHERE username=?", (username,))
+        projects = cur.fetchone()[0]
+        projects_dict = eval(projects)
+        if project_name in projects_dict:
+            del projects_dict[project_name]
+            cur.execute("UPDATE dev_api_tokens SET token=? WHERE username=?", (str(projects_dict), username))
+            self.con.commit()
+            return True
+        return False
+
+    def get_projects(self, username):
+        cur = self.con.cursor()
+        cur.execute("SELECT token, uses FROM dev_api_tokens WHERE username=?", (username,))
+        projects, uses = cur.fetchone()
+        projects_dict = eval(projects)
+        return [(project, token, uses) for project, token in projects_dict.items()]
+
+
+class ProtoBaseAuthentication(DevDashboard):
 
     def signup_with_email(self, username, password, email, token):
         if self.validate_token(token):
