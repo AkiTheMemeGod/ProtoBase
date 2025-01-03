@@ -81,7 +81,7 @@ def send_otp():
     db = DevDashboard(con)
 
     if not db.duplicate_email_check(email) and not db.duplicate_username_check(username, "dev_api_tokens"):
-        success, otp = db.auth.send_mail(email)
+        success, otp = db.auth.send_mail(email=email, username=username)
         if success:
             return jsonify(success=True, otp=otp)
         else:
