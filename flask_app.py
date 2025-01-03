@@ -71,14 +71,39 @@ def swagger_ui():
     return render_template('swagger.html')
 
 
+@app.route('/send_otp', methods=['POST'])
+def send_otp():
+    data = request.get_json()
+    email = data.get("email")
+    username = data.get("username")
+
+    con = get_db()
+    db = DevDashboard(con)
+
+    if not db.duplicate_email_check(email) and not db.duplicate_username_check(username, "dev_api_tokens"):
+        success, otp = db.auth.send_mail(email)
+        if success:
+            return jsonify(success=True, otp=otp)
+        else:
+            return jsonify(success=False, message="Failed to send OTP. Please try again.")
+    else:
+        return jsonify(success=False, message="Email or Username already exists.")
+
+
 @app.route('/signup', methods=['POST'])
 def signup():
     data = request.get_json()
+
+    email = data.get("email")
+    print(email)
     username = data.get("username")
     password = data.get("password")
+    otp = data.get("otp")
+
     con = get_db()
     db = ProtoBaseAuthentication(con)
-    status = db.signup_developer(username, password)
+
+    status = db.signup_developer(username, password, email, otp)
     if status:
         session["user_signed_in"] = True
         session["username"] = username
