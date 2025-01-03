@@ -2,8 +2,10 @@ import math
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
-from datetime import date
+import os
 import random as rd
+from dotenv import load_dotenv
+load_dotenv()
 
 
 class ProtobaseSecurity:
@@ -46,37 +48,92 @@ class Protobase2FA:
         otp = rd.randint(100000, 999999)
         return otp
 
-    def send_mail(self, email):
+    def send_mail(self, email, username):
         otp = self.generate_otp()
         subject = "Your Protobase Signup OTP Code"
-        body = (
-            f"Dear User,\n\n"
-            f"Thank you for signing up with Protobase. To complete your registration, please use the following One-Time Password (OTP):\n\n"
-            f"    {otp}\n\n"
-            f"This OTP is valid for the next 10 minutes. Please do not share this code with anyone.\n\n"
-            f"If you did not request this code, please ignore this email or contact our support team immediately.\n\n"
-            f"Best regards,\n"
-            f"The Protobase Team"
-        )
+        body = f"""
+<html>
+<head>
+    <style>
+        body {{
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }}
+        .container {{
+            width: 100%;
+            padding: 20px;
+            background-color: #ffffff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            margin: 20px auto;
+            max-width: 600px;
+        }}
+        .header {{
+            background: linear-gradient(90deg, #6a00ff, #9e2fff);
+            color: white;
+            padding: 10px 0;
+            text-align: center;
+        }}
+        .content {{
+            padding: 20px;
+        }}
+        .otp {{
+            font-size: 24px;
+            font-weight: bold;
+            color: #6a00ff;
+            text-align: center;
+        }}
+        .name {{
+            font-size: 24px;
+            font-weight: bold;
+            color: #6a00ff;
+        }}
+        .footer {{
+            background: linear-gradient(90deg, #9e2fff, #6a00ff);
 
-        sender_email = "akis.pwdchecker@gmail.com"
-        sender_password = "tjjqhaifdobuluhg"
+            text-align: center;
+            padding: 10px;
+            font-size: 12px;
+            color: white;
+        }}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Protobase</h1>
+        </div>
+        <div class="content">
+            <p class="name">Dear {username},</p>
+            <p>Thank you for signing up with Protobase. To complete your registration, please use the following One-Time Password (OTP):</p>
+            <p class="otp">{otp}</p>
+            <p>This OTP is valid for the next 10 minutes. Please do not share this code with anyone.</p>
+            <p>If you did not request this code, please ignore this email or contact our support team immediately.</p>
+            <p>Best regards,<br>The Protobase Team</p>
+        </div>
+        <div class="footer">
+            <p>&copy; 2025 Protobase. All rights reserved.</p>
+        </div>
+    </div>
+</body>
+</html>
+"""
+
+        sender_email = os.getenv("SENDER_EMAIL")
+        sender_password = os.getenv("SENDER_PASSWORD")
 
         message = MIMEMultipart()
-        message["From"] = sender_email
+        message["From"] = "ProtoBase"
         message["To"] = email
         message["Subject"] = subject
-        message.attach(MIMEText(body, "plain"))
+        message.attach(MIMEText(body, "html"))
 
         try:
-            # Connecting to the server
-            with smtplib.SMTP("smtp.gmail.com", 587) as server:
-                server.starttls()
+            with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
                 server.login(sender_email, sender_password)
                 server.send_message(message)
-            # print("Email sent successfully.")
             return True, otp
         except Exception as e:
-            # print(f"Failed to send email: {e}")
             return False, None
 
