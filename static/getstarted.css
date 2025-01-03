@@ -112,15 +112,3 @@ a:hover {
     white-space: pre-wrap;
 }
 
-/* Ensure the API token is displayed properly */
-.API-Token {
-    display: block;
-    word-wrap: break-word;
-    overflow-wrap: break-word;
-    white-space: pre-wrap;
-    background: #1e1e2f;
-    padding: 10px;
-    border-radius: 5px;
-    margin-top: 10px;
-    color: #00ffcc;
-}
