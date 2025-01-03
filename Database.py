@@ -1,6 +1,6 @@
 import sqlite3 as sq
 import secrets as st
-from security import ProtobaseSecurity
+from security import ProtobaseSecurity, Protobase2FA
 import ast
 
 
@@ -11,6 +11,7 @@ class Helpers:
         else:
             self.con = sq.connect("Authentication.db", check_same_thread=False)
         self.sec = ProtobaseSecurity()
+        self.auth = Protobase2FA()
 
     def duplicate_email_check(self, email):
         cur = self.con.cursor()
@@ -84,6 +85,7 @@ class ApiToken(Helpers):
 
         return token in tokens
 
+    # TODO: Implement it ASAP
     def update_token_usage(self, token):
         cur = self.con.cursor()
         cur.execute("UPDATE dev_api_tokens SET uses = uses + 1 WHERE token=?", (token,))
@@ -101,13 +103,12 @@ class DevDashboard(ApiToken):
         creds = cur.fetchall()
         return data in creds
 
-    def signup_developer(self, username, password):
+    def signup_developer(self, username, password, email, user_otp):
         try:
             cur = self.con.cursor()
-            password = self.sec.encrypt(username=username, password=password)
-
-            data = (username, password, "{}", 0)
-            cur.execute("INSERT INTO dev_api_tokens VALUES (?,?,?,?)", data)
+            password = self.sec.encrypt(username=username, password=password, email=email)
+            data = (username, password, "{}", 0, email)
+            cur.execute("INSERT INTO dev_api_tokens VALUES (?,?,?,?,?)", data)
             self.con.commit()
             return True
 
