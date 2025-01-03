@@ -29,7 +29,7 @@
                 <td>
                     <form action="/delete_project" method="post" style="display:inline;">
                         <input type="hidden" name="project_name" value="{{ project }}">
-                        <button type="submit"><i class="fas fa-trash"></i></button>
+                        <button type="submit" onclick="showFlyout('Project deleted', 'delete')"><i class="fas fa-trash"></i></button>
                     </form>
                     <button onclick="copyToClipboard('{{ token }}')"><i class="fas fa-copy"></i></button>
                 </td>
@@ -38,14 +38,24 @@
         </table>
         <button class="logout-button" onclick="window.location.href='/logout'"><i class="fas fa-sign-out-alt"></i> <strong> Logout</strong></button>
     </div>
-    <script>
-        function copyToClipboard(text) {
-            navigator.clipboard.writeText(text).then(function() {
-                alert('Token copied to clipboard');
-            }, function(err) {
-                console.error('Could not copy text: ', err);
-            });
-        }
-    </script>
+    <div id="flyout" class="flyout"></div>
+<script>
+    function copyToClipboard(text) {
+        navigator.clipboard.writeText(text).then(function() {
+            showFlyout('Token copied to clipboard', 'copy');
+        }, function(err) {
+            console.error('Could not copy text: ', err);
+        });
+    }
+
+    function showFlyout(message, type) {
+        const flyout = document.getElementById('flyout');
+        flyout.textContent = message;
+        flyout.className = `flyout show ${type}`;
+        setTimeout(() => {
+            flyout.classList.remove('show');
+        }, 3000);
+    }
+</script>
 </body>
 </html>
