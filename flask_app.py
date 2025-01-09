@@ -1,9 +1,17 @@
+import platform
+
 from flask import *
 from flask_cors import CORS
 from Database import ProtoBaseAuthentication, DevDashboard
 from schemas import openapi_schema
 import sqlite3 as sq
-
+import platform as p
+from paths import *
+if p.system() == 'Linux':
+    path = linux
+else:
+    path = windows
+print(f"Starting Up in {p.system()} taking database path as : {path}")
 app = Flask(__name__)
 CORS(app)
 
@@ -12,7 +20,7 @@ app.secret_key = "#$TL#$T#4MH3l3h4o8jkwbfdo8ho8234jbsdf"
 
 def get_db():
     if "db" not in g:
-        g.db = sq.connect("Authentication.db")
+        g.db = sq.connect(path)
     return g.db
 
 
@@ -118,9 +126,11 @@ def signin():
     data = request.get_json()
     username = data.get("username")
     password = data.get("password")
+
     con = get_db()
     db = DevDashboard(con)
-    result = db.validate_developer(username, password)
+    email = db.get_email(username)
+    result = db.validate_developer(username, password, email)
     if result:
         session["user_signed_in"] = True
         session["username"] = username
@@ -137,7 +147,7 @@ def add_project():
     con = get_db()
     db = DevDashboard(con)
     token = db.add_project(username, project_name)
-    return redirect(url_for('dashboard'))
+    return redirect(url_for('projects'))
 
 
 @app.route("/dashboard")
@@ -145,10 +155,30 @@ def dashboard():
     if not session.get("user_signed_in"):
         return redirect(url_for("get_started"))
     username = session.get("username")
+    return render_template("dashboard.html", username=username)
+
+
+@app.route("/profile")
+def profile():
+    # Implement the profile page logic here
+    return render_template("profile.html")
+
+
+@app.route("/databases")
+def databases():
+    # Implement the databases page logic here
+    return render_template("databases.html")
+
+
+@app.route("/projects")
+def projects():
+    if not session.get("user_signed_in"):
+        return redirect(url_for("get_started"))
+    username = session.get("username")
     con = get_db()
     db = DevDashboard(con)
     projects = db.get_projects(username)
-    return render_template("dashboard.html", username=username, projects=projects)
+    return render_template("projects.html", username=username, projects=projects)
 
 
 @app.route("/auth_api/email-signup/")
@@ -240,6 +270,50 @@ def signin_username():
             return jsonify({"message": "Incorrect Credentials", "status-code": 400})
     else:
         return jsonify({"message": "Invalid input parameters", "status-code": 400})
+
+
+@app.route("/forgot_password", methods=['GET', 'POST'])
+def forgot_password():
+    con = get_db()
+    db = DevDashboard(con)
+    if request.method == 'GET':
+        return render_template("forgot_password.html")
+    elif request.method == 'POST':
+        data = request.get_json()
+        email = data.get('email')
+        username = db.get_username(email)
+        reset_link = f'http://127.0.0.1:5000/reset_password/{username}'
+
+        success = db.auth.send_reset_password_email(email, username, reset_link)
+
+        if success:
+            return jsonify(success=True, message="Reset email sent successfully.")
+        else:
+            return jsonify(success=False, message="Failed to send reset email.")
+
+
+@app.route("/reset_password/<username>", methods=['GET', 'POST'])
+def reset_password(username):
+    con = get_db()
+    db = DevDashboard(con)
+    if request.method == 'GET':
+        return render_template("reset_password.html", username=username)
+    elif request.method == 'POST':
+        data = request.get_json()
+        password = data.get('password')
+        print(password)
+        confirm_password = data.get('cnf_password')
+        if password == confirm_password:
+            email = db.get_email(username)
+            print(email, username)
+            success = db.reset_password(username, password, email)
+            if success:
+                return jsonify(success=True, message="Password reset successfully.")
+
+            else:
+                return jsonify(success=False, message="Failed to reset password.")
+        else:
+            return jsonify(success=False, message="Passwords do not match!")
 
 
 if __name__ == '__main__':
