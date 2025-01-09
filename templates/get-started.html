@@ -25,9 +25,13 @@
                 <input type="text" id="signinUsername" placeholder="Username">
                 <input type="password" id="signinPassword" placeholder="Password">
                 <button type="submit" class="btn">Sign In</button>
+
                 <div id="signinOutput" class="output"></div>
             </form>
             <p>New here? <a href="#" onclick="showSignUp()">Sign up</a></p>
+            <p><a href="/forgot_password">Forgot Password ?</a></p>
+
+
         </div>
 
         <div class="form-container hidden" id="sign-up-form">
@@ -39,6 +43,7 @@
                 <input type="text" id="otp" placeholder="OTP" class="hidden">
                 <button type="button" class="btn" id="sendOtpButton" onclick="sendOtp()">Send OTP</button>
                 <button type="submit" class="btn hidden" id="signupButton">Sign Up</button>
+
                 <div id="signupOutput" class="output"></div>
             </form>
             <p>Already have an account? <a href="#" onclick="showSignIn()">Sign in</a></p>
