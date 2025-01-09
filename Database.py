@@ -2,18 +2,37 @@ import sqlite3 as sq
 import secrets as st
 from security import ProtobaseSecurity, Protobase2FA
 import ast
+import platform as p
+from paths import *
+if p.system() == 'Linux':
+    path = linux
+else:
+    path = windows
+
+print(f"Starting Up in {p.system()} taking database path as : {path}")
 
 
 class Helpers:
     def __init__(self, con=None):
+        """
+        Initialize the Helpers class with a database connection.
+
+        :param con: Optional database connection object.
+        """
         if con:
             self.con = con
         else:
-            self.con = sq.connect("Authentication.db", check_same_thread=False)
+            self.con = sq.connect(path, check_same_thread=False)
         self.sec = ProtobaseSecurity()
         self.auth = Protobase2FA()
 
     def duplicate_email_check(self, email):
+        """
+        Check if the given email already exists in the database.
+
+        :param email: Email to check for duplication.
+        :return: True if email exists, False otherwise.
+        """
         cur = self.con.cursor()
         cur.execute("SELECT email FROM authwithemail")
         emails = cur.fetchall()
@@ -21,6 +40,13 @@ class Helpers:
         return email in emails
 
     def duplicate_username_check(self, username, table):
+        """
+        Check if the given username already exists in the specified table.
+
+        :param username: Username to check for duplication.
+        :param table: Table name to check in.
+        :return: True if username exists, False otherwise.
+        """
         cur = self.con.cursor()
         cur.execute(f"SELECT username FROM {table}")
         usernames = cur.fetchall()
@@ -32,10 +58,22 @@ class ApiToken(Helpers):
 
     @staticmethod
     def generate_api_token():
+        """
+        Generate a secure API token.
+
+        :return: Generated API token.
+        """
         token = st.token_urlsafe(64)
         return token
 
     def add_project(self, username, project_name):
+        """
+        Add a new project for the given username.
+
+        :param username: Username of the developer.
+        :param project_name: Name of the project to add.
+        :return: Generated token for the project or None if project already exists.
+        """
         cur = self.con.cursor()
         cur.execute("SELECT token FROM dev_api_tokens WHERE username=?", (username,))
         projects = cur.fetchone()[0]
@@ -49,6 +87,13 @@ class ApiToken(Helpers):
         return token
 
     def delete_project(self, username, project_name):
+        """
+        Delete a project for the given username.
+
+        :param username: Username of the developer.
+        :param project_name: Name of the project to delete.
+        :return: True if project was deleted, False otherwise.
+        """
         cur = self.con.cursor()
         cur.execute("SELECT token FROM dev_api_tokens WHERE username=?", (username,))
         projects = cur.fetchone()[0]
@@ -61,6 +106,12 @@ class ApiToken(Helpers):
         return False
 
     def get_projects(self, username):
+        """
+        Get all projects for the given username.
+
+        :param username: Username of the developer.
+        :return: List of tuples containing project name, token, and usage count.
+        """
         try:
             cur = self.con.cursor()
             cur.execute("SELECT token, uses FROM dev_api_tokens WHERE username=?", (username,))
@@ -71,6 +122,12 @@ class ApiToken(Helpers):
             return []
 
     def validate_token(self, token):
+        """
+        Validate if the given token exists in the database.
+
+        :param token: Token to validate.
+        :return: True if token is valid, False otherwise.
+        """
         cur = self.con.cursor()
         cur.execute("SELECT token FROM dev_api_tokens")
         projects = cur.fetchall()  # Fetch all rows
@@ -85,8 +142,12 @@ class ApiToken(Helpers):
 
         return token in tokens
 
-    # TODO: Implement it ASAP
     def update_token_usage(self, token):
+        """
+        Update the usage count of the given token.
+
+        :param token: Token to update usage for.
+        """
         cur = self.con.cursor()
         cur.execute("UPDATE dev_api_tokens SET uses = uses + 1 WHERE token=?", (token,))
         self.con.commit()
@@ -94,16 +155,36 @@ class ApiToken(Helpers):
 
 class DevDashboard(ApiToken):
 
-    def validate_developer(self, username, password):
+    def validate_developer(self, username, password, email):
+        """
+        Validate developer credentials.
+
+        :param username: Username of the developer.
+        :param password: Password of the developer.
+        :param email: email of the developer.
+
+        :return: True if credentials are valid, False otherwise.
+        """
         cur = self.con.cursor()
-        password = self.sec.encrypt(username=username, password=password)
+        password = self.sec.encrypt(username=username, password=password, email=email)
 
         data = (username, password)
+        print(data)
         cur.execute("SELECT username, password FROM dev_api_tokens")
         creds = cur.fetchall()
+        print(creds)
         return data in creds
 
     def signup_developer(self, username, password, email, user_otp):
+        """
+        Sign up a new developer.
+
+        :param username: Username of the developer.
+        :param password: Password of the developer.
+        :param email: Email of the developer.
+        :param user_otp: OTP for verification.
+        :return: True if signup was successful, False otherwise.
+        """
         try:
             cur = self.con.cursor()
             password = self.sec.encrypt(username=username, password=password, email=email)
@@ -118,10 +199,63 @@ class DevDashboard(ApiToken):
         finally:
             self.con.close()
 
+    def get_username(self, email):
+        """
+        Get the username associated with the given email.
+
+        :param email: Email to get the username for.
+        :return: Username associated with the email.
+        """
+        cur = self.con.cursor()
+        cur.execute("SELECT username FROM dev_api_tokens WHERE email=?", (email, ))
+        username = cur.fetchone()[0]
+        return username
+
+    def get_email(self, username):
+        """
+        Get the email associated with the given username.
+
+        :param username: Username to get the email for.
+        :return: Email associated with the username.
+        """
+        cur = self.con.cursor()
+        cur.execute("SELECT email FROM dev_api_tokens WHERE username=?", (username,))
+        email = cur.fetchone()[0]
+        return email
+
+    def reset_password(self, username, password, email):
+        """
+        Reset the password for the given username.
+
+        :param username: Username of the developer.
+        :param password: New password to set.
+        :param email: Email of the developer.
+        :return: True if password reset was successful, False otherwise.
+        """
+        password = self.sec.encrypt(username, password, email)
+        cur = self.con.cursor()
+        try:
+            cur.execute("UPDATE dev_api_tokens SET password=? WHERE username=?", (password, username))
+            return True
+        except Exception as e:
+            print(e)
+            return False
+        finally:
+            self.con.commit()
+
 
 class ProtoBaseAuthentication(DevDashboard):
 
     def signup_with_email(self, username, password, email, token):
+        """
+        Sign up a new user with email.
+
+        :param username: Username of the user.
+        :param password: Password of the user.
+        :param email: Email of the user.
+        :param token: API token for validation.
+        :return: Status code indicating the result of the signup.
+        """
         if self.validate_token(token):
 
             cur = self.con.cursor()
@@ -139,6 +273,14 @@ class ProtoBaseAuthentication(DevDashboard):
             return 500
 
     def signup_with_username(self, username, password, token):
+        """
+        Sign up a new user with username.
+
+        :param username: Username of the user.
+        :param password: Password of the user.
+        :param token: API token for validation.
+        :return: Status code indicating the result of the signup.
+        """
         if self.validate_token(token):
             cur = self.con.cursor()
             if not self.duplicate_username_check(username, "authwithoutemail"):
@@ -156,6 +298,15 @@ class ProtoBaseAuthentication(DevDashboard):
             return 500
 
     def signin_with_email(self, username, password, email, token):
+        """
+        Sign in a user with email.
+
+        :param username: Username of the user.
+        :param password: Password of the user.
+        :param email: Email of the user.
+        :param token: API token for validation.
+        :return: Tuple indicating success status and status code.
+        """
         if self.validate_token(token):
             password = self.sec.encrypt(username, password, email)
             cur = self.con.cursor()
@@ -173,6 +324,14 @@ class ProtoBaseAuthentication(DevDashboard):
             return True, 500
 
     def signin_with_username(self, username, password, token):
+        """
+        Sign in a user with username.
+
+        :param username: Username of the user.
+        :param password: Password of the user.
+        :param token: API token for validation.
+        :return: Tuple indicating success status and status code.
+        """
         if self.validate_token(token):
             password = self.sec.encrypt(username, password)
             cur = self.con.cursor()
