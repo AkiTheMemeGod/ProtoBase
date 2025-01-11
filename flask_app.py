@@ -334,7 +334,7 @@ def forgot_password():
         data = request.get_json()
         email = data.get('email')
         username = db.get_username(email)
-        reset_link = f'http://127.0.0.1:5000/reset_password/{username}'
+        reset_link = f'https://protobase.pythonanywhere.com/reset_password/{username}'
 
         success = db.auth.send_reset_password_email(email, username, reset_link)
 
