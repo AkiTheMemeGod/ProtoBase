@@ -46,7 +46,7 @@ class Protobase2FA:
         otp = rd.randint(100000, 999999)
         return otp
 
-    def send_mail(self, email, username):
+    def send_otp(self, email, username):
         otp = self.generate_otp()
         subject = "Your Protobase Signup OTP Code"
         with open('static/otp.html', 'r') as file:
