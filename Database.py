@@ -204,8 +204,8 @@ class DevDashboard(ApiToken):
         try:
             cur = self.con.cursor()
             password = self.sec.encrypt(username=username, password=password, email=email)
-            data = (username, password, "{}", 0, email)
-            cur.execute("INSERT INTO dev_api_tokens VALUES (?,?,?,?,?)", data)
+            data = (username, password, "{}", 0, email, open('static/img.png', 'rb').read())
+            cur.execute("INSERT INTO dev_api_tokens VALUES (?,?,?,?,?,?)", data)
             self.con.commit()
             return True
 
@@ -258,6 +258,20 @@ class DevDashboard(ApiToken):
             return False
         finally:
             self.con.commit()
+
+    def edit_pfp(self, usr, pfp):
+        data = (pfp, usr)
+        cursor = self.con.cursor()
+        cursor.execute("Update dev_api_tokens set pfp=? where username=?", data)
+        self.con.commit()
+
+    def pfp(self, usr):
+        usr = (usr, )
+        cursor = self.con.cursor()
+        cursor.execute("SElECT pfp FROM dev_api_tokens where username=?", usr)
+        pfps = cursor.fetchone()[0]
+        # pfps = [i[0] for i in pfps]
+        return pfps
 
 
 class ProtoBaseAuthentication(DevDashboard):
