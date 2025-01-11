@@ -6,6 +6,7 @@ import sqlite3 as sq
 import os
 import platform as p
 from paths import *
+import base64
 if p.system() == 'Linux':
     path = linux
 else:
@@ -22,6 +23,9 @@ def get_db():
         g.db = sq.connect(path)
     return g.db
 
+@app.template_filter('b64encode')
+def b64encode_filter(data):
+    return base64.b64encode(data).decode('utf-8')
 
 """
 __________________________
@@ -202,10 +206,48 @@ def dashboard():
     return render_template("dashboard.html", username=username)
 
 
-@app.route("/profile")
+@app.route('/profile', methods=['GET', 'POST'])
 def profile():
-    # Implement the profile page logic here
-    return render_template("profile.html")
+    if not session.get("user_signed_in"):
+        return redirect(url_for("get_started"))
+
+    username = session.get("username")
+    con = get_db()
+    db = DevDashboard(con)
+
+    if request.method == 'POST':
+        # Handle password change
+        data = request.form
+        new_password = data.get('new_password')
+        confirm_password = data.get('confirm_password')
+
+        if new_password and confirm_password:
+            if new_password == confirm_password:
+                email = db.get_email(username)
+                success = db.reset_password(username, new_password, email)
+                if success:
+                    flash("Password changed successfully.", "success")
+                else:
+                    flash("Failed to change password.", "danger")
+            else:
+                flash("Passwords do not match!", "danger")
+
+        # Handle profile picture change
+        if 'pfp' in request.files:
+            pfp = request.files['pfp']
+            pfp_data = pfp.read()
+            db.edit_pfp(username, pfp_data)
+            flash("Profile picture updated successfully.", "success")
+
+    # Retrieve user information
+    cur = con.cursor()
+    cur.execute("SELECT username, email, pfp FROM dev_api_tokens WHERE username=?", (username,))
+    user_info = cur.fetchone()
+
+    user_info = (user_info[0], user_info[1], user_info[2])
+
+    return render_template('profile.html', user_info=user_info)
+
 
 
 @app.route('/databases')
