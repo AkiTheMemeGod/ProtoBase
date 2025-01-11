@@ -4,6 +4,12 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 import random as rd
 from cred import *
+import platform as p
+from paths import *
+if p.system() == 'Linux':
+    path = static_lin
+else:
+    path = static_win
 
 
 class ProtobaseSecurity:
@@ -75,7 +81,7 @@ class Protobase2FA:
     def send_reset_password_email(email, username, reset_link):
         subject = "Protobase Password Reset Request"
 
-        with open('static/reset_password_template.html', 'r') as file:
+        with open(f'{path}reset_password_template.html', 'r') as file:
             body = file.read()
 
         body = body.replace("{username}", username).replace("{reset_link}", reset_link)
