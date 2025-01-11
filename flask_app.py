@@ -1,10 +1,9 @@
-import platform
-
 from flask import *
 from flask_cors import CORS
 from Database import ProtoBaseAuthentication, DevDashboard
 from schemas import openapi_schema
 import sqlite3 as sq
+import os
 import platform as p
 from paths import *
 if p.system() == 'Linux':
@@ -24,28 +23,16 @@ def get_db():
     return g.db
 
 
+"""
+__________________________
+APP DEFAULT ROUTES
+__________________________
+"""
+
+
 @app.before_request
 def make_session_permanent():
     session.permanent = False
-
-
-@app.route('/delete_project', methods=['POST'])
-def delete_project():
-    project_name = request.form.get('project_name')
-    username = session.get('username')
-    con = get_db()
-    db = DevDashboard(con)
-    success = db.delete_project(username, project_name)
-    return redirect(url_for('dashboard'))
-
-
-@app.route("/logout")
-def logout():
-    session.pop("user_signed_in", None)
-    session.pop("username", None)
-    # session.pop("token", None)
-
-    return redirect(url_for("get_started"))
 
 
 @app.teardown_appcontext
@@ -67,6 +54,13 @@ def get_started():
     return redirect(url_for("dashboard"))
 
 
+"""
+__________________________
+DOCUMENTATION ROUTES
+__________________________
+"""
+
+
 @app.route('/openapi.json')
 def openapi():
     """Serve the OpenAPI schema."""
@@ -79,6 +73,13 @@ def swagger_ui():
     return render_template('swagger.html')
 
 
+"""
+__________________________
+DEV AUTHENTICATION ROUTES
+__________________________
+"""
+
+
 @app.route('/send_otp', methods=['POST'])
 def send_otp():
     data = request.get_json()
@@ -89,7 +90,7 @@ def send_otp():
     db = DevDashboard(con)
 
     if not db.duplicate_email_check(email) and not db.duplicate_username_check(username, "dev_api_tokens"):
-        success, otp = db.auth.send_mail(email=email, username=username)
+        success, otp = db.auth.send_otp(email=email, username=username)
         if success:
             return jsonify(success=True, otp=otp)
         else:
@@ -103,7 +104,6 @@ def signup():
     data = request.get_json()
 
     email = data.get("email")
-    print(email)
     username = data.get("username")
     password = data.get("password")
     otp = data.get("otp")
@@ -140,6 +140,43 @@ def signin():
         return jsonify(success=False, message="Signin failed. Incorrect credentials.")
 
 
+@app.route("/logout")
+def logout():
+    session.pop("user_signed_in", None)
+    session.pop("username", None)
+    # session.pop("token", None)
+
+    return redirect(url_for("get_started"))
+
+
+"""
+__________________________
+PROJECT ROUTES
+__________________________
+"""
+
+
+@app.route("/projects")
+def projects():
+    if not session.get("user_signed_in"):
+        return redirect(url_for("get_started"))
+    username = session.get("username")
+    con = get_db()
+    db = DevDashboard(con)
+    projects = db.get_projects(username)
+    return render_template("projects.html", username=username, projects=projects)
+
+
+@app.route('/delete_project', methods=['POST'])
+def delete_project():
+    project_name = request.form.get('project_name')
+    username = session.get('username')
+    con = get_db()
+    db = DevDashboard(con)
+    success = db.delete_project(username, project_name)
+    return redirect(url_for('projects'))
+
+
 @app.route('/add_project', methods=['POST'])
 def add_project():
     project_name = request.form.get('project_name')
@@ -148,6 +185,13 @@ def add_project():
     db = DevDashboard(con)
     token = db.add_project(username, project_name)
     return redirect(url_for('projects'))
+
+
+"""
+__________________________
+    DASHBOARD ROUTES
+__________________________
+"""
 
 
 @app.route("/dashboard")
@@ -164,21 +208,22 @@ def profile():
     return render_template("profile.html")
 
 
-@app.route("/databases")
+@app.route('/databases')
 def databases():
-    # Implement the databases page logic here
-    return render_template("databases.html")
-
-
-@app.route("/projects")
-def projects():
     if not session.get("user_signed_in"):
         return redirect(url_for("get_started"))
     username = session.get("username")
     con = get_db()
     db = DevDashboard(con)
-    projects = db.get_projects(username)
-    return render_template("projects.html", username=username, projects=projects)
+    projects = db.get_project_names(username)
+    return render_template("databases.html", projects=projects)
+
+
+"""
+__________________________
+API ROUTES
+__________________________
+"""
 
 
 @app.route("/auth_api/email-signup/")
@@ -272,6 +317,13 @@ def signin_username():
         return jsonify({"message": "Invalid input parameters", "status-code": 400})
 
 
+"""
+__________________________
+PASSWORD ROUTES
+__________________________
+"""
+
+
 @app.route("/forgot_password", methods=['GET', 'POST'])
 def forgot_password():
     con = get_db()
@@ -301,11 +353,9 @@ def reset_password(username):
     elif request.method == 'POST':
         data = request.get_json()
         password = data.get('password')
-        print(password)
         confirm_password = data.get('cnf_password')
         if password == confirm_password:
             email = db.get_email(username)
-            print(email, username)
             success = db.reset_password(username, password, email)
             if success:
                 return jsonify(success=True, message="Password reset successfully.")
@@ -314,6 +364,166 @@ def reset_password(username):
                 return jsonify(success=False, message="Failed to reset password.")
         else:
             return jsonify(success=False, message="Passwords do not match!")
+
+
+"""
+__________________________
+DATABASE CRUD ROUTES
+__________________________
+"""
+
+
+def get_databases(username, project_name):
+    db_path = f'databases/{username}/{project_name}.db'
+    conn = sq.connect(db_path)
+    return conn
+
+
+@app.route('/create_table', methods=['POST'])
+def create_table():
+    username = session.get("username")
+    project_name = request.form['project_name']
+    table_name = request.form['table_name']
+    columns = request.form.getlist('column_name[]')
+    column_types = request.form.getlist('column_type[]')
+
+    if not table_name or not columns or not column_types:
+        return "Invalid input", 400
+
+    column_definitions = ', '.join(f"{name} {dtype}" for name, dtype in zip(columns, column_types))
+    query = f"CREATE TABLE IF NOT EXISTS {table_name} ({column_definitions});"
+
+    conn = get_databases(username, project_name)
+    cursor = conn.cursor()
+    cursor.execute(query)
+    conn.commit()
+    conn.close()
+
+    return "Table created successfully", 200
+
+
+@app.route('/insert_data', methods=['POST'])
+def insert_data():
+    username = session.get("username")
+    project_name = request.form['project_name']
+    table = request.form['table']
+    data = {key: request.form[key] for key in request.form if key not in ['table', 'project_name']}
+
+    if not data:
+        return "No data provided", 400
+
+    columns = ', '.join(data.keys())
+    placeholders = ', '.join('?' for _ in data)
+    values = tuple(data.values())
+
+    query = f"INSERT INTO {table} ({columns}) VALUES ({placeholders})"
+
+    try:
+        conn = get_databases(username, project_name)
+        cursor = conn.cursor()
+        cursor.execute(query, values)
+        conn.commit()
+        conn.close()
+        return "Data inserted successfully", 200
+    except sq.OperationalError as e:
+        return f"An error occurred: {e}", 500
+
+
+@app.route('/read_data', methods=['POST'])
+def read_data():
+    username = session.get("username")
+    project_name = request.form['project_name']
+    table = request.form['table']
+    query = f"SELECT * FROM {table}"
+
+    conn = get_databases(username, project_name)
+    cursor = conn.cursor()
+    cursor.execute(query)
+    rows = cursor.fetchall()
+    columns = [description[0] for description in cursor.description]
+    conn.close()
+
+    data = [dict(zip(columns, row)) for row in rows]
+    if data:
+        return render_template('read_data.html', project_name=project_name, table=table, rows=data)
+    else:
+        return render_template("empty.html",  table=table, project_name=project_name)
+
+
+@app.route('/update_data', methods=['POST'])
+def update_data():
+    username = session.get("username")
+    project_name = request.args.get('project_name')
+    table = request.args.get('table')
+    where_clause = request.args.get('where')
+
+    if not project_name or not table or not where_clause:
+        return "Missing parameters", 400
+    set_clause = ', '.join(f"{key} = ?" for key in request.form if key != "where")
+    values = tuple(request.form[key] for key in request.form)
+
+    query = f"UPDATE {table} SET {set_clause} WHERE {where_clause}"
+    try:
+        conn = get_databases(username, project_name)
+        cursor = conn.cursor()
+        cursor.execute(query, values[:-1])
+        conn.commit()
+        conn.close()
+        return "Data updated successfully", 200
+    except sq.OperationalError as e:
+        return f"An error occurred: {e}", 500
+
+
+@app.route('/delete_data', methods=['GET'])
+def delete_data():
+    username = session.get("username")
+    project_name = request.args.get('project_name')
+    table = request.args.get('table')
+    where_clause = request.args.get('condition')
+    if not project_name or not table or not where_clause:
+        return "Missing parameters", 400
+
+    query = f"DELETE FROM {table} WHERE {where_clause}"
+
+    try:
+        conn = get_databases(username, project_name)
+        cursor = conn.cursor()
+        cursor.execute(query)
+        conn.commit()
+        conn.close()
+        return "Data deleted successfully", 200
+    except sq.OperationalError as e:
+        return f"An error occurred: {e}", 500
+
+
+@app.route('/get_tables', methods=['GET'])
+def get_tables():
+    username = session.get("username")
+    project_name = request.args.get('project_name')
+    if not project_name:
+        app.logger.error("Project name is missing in the request")
+        return jsonify({"error": "Project name is required"}), 400
+
+    app.logger.info(f"Received project_name: {project_name}")
+    conn = get_databases(username, project_name)
+    cursor = conn.cursor()
+    cursor.execute("SELECT name FROM sqlite_master WHERE type='table';")
+    tables = [row[0] for row in cursor.fetchall()]
+    conn.close()
+    return jsonify(tables)
+
+
+@app.route('/db_crud/<project_name>')
+def db_crud(project_name):
+    if not session.get("user_signed_in"):
+        return redirect(url_for("get_started"))
+    username = session.get("username")
+    db_path = f"databases/{username}/{project_name}.db"
+    os.makedirs(os.path.dirname(db_path), exist_ok=True)
+    if not os.path.exists(db_path):
+        conn = sq.connect(db_path)
+        conn.close()
+    return render_template("DB_CRUD.html", project_name=project_name)
 
 
 if __name__ == '__main__':
