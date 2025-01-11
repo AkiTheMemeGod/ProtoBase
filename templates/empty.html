@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Read Data</title>
+    <link rel="stylesheet" href="/static/read_data.css">
+    <link rel="stylesheet" href="/static/fontawesome/css/all.min.css">
+</head>
+<body>
+    <header>
+        <h1>ProtoBase</h1>
+        <nav>
+            <ul>
+                <li><a href="/">Home</a></li>
+                <li><a href="/docs">Documentation</a></li>
+            </ul>
+        </nav>
+    </header>
+    <br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
+    <div class="container">
+    <h1 class="ERROR">NO DATA in {{ table }}</h1>
+        <button class="logout-button" onclick="window.location.href='/db_crud/{{ project_name }}'"><i class="fas fa-backward"></i> <strong> Back</strong></button>
+    </div>
+</body>
+</html>
