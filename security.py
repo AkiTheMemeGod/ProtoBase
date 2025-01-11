@@ -55,7 +55,7 @@ class Protobase2FA:
     def send_otp(self, email, username):
         otp = self.generate_otp()
         subject = "Your Protobase Signup OTP Code"
-        with open('static/otp.html', 'r') as file:
+        with open(f'{path}otp.html', 'r') as file:
             body = file.read()
 
         # Replace placeholders with actual values
