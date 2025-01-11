@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Read Data</title>
+    <link rel="stylesheet" href="/static/read_data.css">
+    <link rel="stylesheet" href="/static/fontawesome/css/all.min.css">
+</head>
+<body>
+    <header>
+        <h1>ProtoBase</h1>
+        <nav>
+            <ul>
+                <li><a href="/">Home</a></li>
+                <li><a href="/docs">Documentation</a></li>
+            </ul>
+        </nav>
+    </header>
+    <h1>Data from {{ table }}</h1>
+    <div class="container">
+        <table>
+            <thead>
+                <tr>
+                    {% for column in rows[0].keys() %}
+                        <th>{{ column }}</th>
+                    {% endfor %}
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in rows %}
+                    <tr>
+                        {% for value in row.values() %}
+                            <td>{{ value }}</td>
+                        {% endfor %}
+                        <td>
+                            <button onclick="editRow({{ loop.index0 }})"><i class="fas fa-edit"></i></button>
+                            <button onclick="deleteRow('{{ project_name }}', '{{ table }}', 'id={{ row['id'] }}')"><i class="fas fa-trash"></i></button>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <button class="logout-button" onclick="window.location.href='/db_crud/{{ project_name }}'"><i class="fas fa-backward"></i> <strong> Back</strong></button>
+    </div>
+
+    <!-- Edit Popup -->
+    <div id="editPopup" class="popup">
+        <div class="popup-content">
+            <span class="close" onclick="closePopup()">&times;</span>
+            <h2>Edit Data</h2>
+            <form id="editForm" action="" method="post">
+                {% for column in rows[0].keys() %}
+                    <label for="{{ column }}">{{ column }}</label>
+                    <input type="text" id="{{ column }}" name="{{ column }}" required>
+                {% endfor %}
+                <input type="hidden" id="where" name="where">
+                <button type="submit">Save</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Flyout -->
+    <div id="flyout" class="flyout"></div>
+
+    <script>
+    function showFlyout(message, type) {
+        const flyout = document.getElementById('flyout');
+        flyout.textContent = message;
+        flyout.className = `flyout show ${type}`;
+        setTimeout(() => {
+            flyout.classList.remove('show');
+        }, 3000);
+    }
+
+    function editRow(index) {
+        const row = document.querySelectorAll('tbody tr')[index];
+        const cells = row.querySelectorAll('td');
+        const form = document.getElementById('editForm');
+        {% for column in rows[0].keys() %}
+            form['{{ column }}'].value = cells[{{ loop.index0 }}].textContent;
+        {% endfor %}
+        form.action = `/update_data?project_name={{ project_name }}&table={{ table }}&where=id=${cells[0].textContent}`;
+        document.getElementById('editPopup').style.display = 'block';
+    }
+
+    function deleteRow(project_name, table, condition) {
+        fetch(`/delete_data?project_name=${project_name}&table=${table}&condition=${condition}`)
+            .then(response => response.text())
+            .then(data => {
+                showFlyout('Data deleted successfully', 'delete');
+                setTimeout(() => {
+                    location.reload();
+                }, 3000);
+            })
+            .catch(error => console.error('Error:', error));
+    }
+
+    function closePopup() {
+        document.getElementById('editPopup').style.display = 'none';
+    }
+
+    document.getElementById('editForm').addEventListener('submit', function(event) {
+        event.preventDefault();
+        const formData = new FormData(this);
+        fetch(this.action, {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.text())
+        .then(data => {
+            closePopup();
+            showFlyout('Data updated successfully', 'copy');
+            setTimeout(() => {
+                location.reload();
+            }, 3000);
+        })
+        .catch(error => console.error('Error:', error));
+    });
+    </script>
+</body>
+</html>
