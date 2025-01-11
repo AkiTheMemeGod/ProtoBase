@@ -1,51 +1,69 @@
-# ProtoBase Authentication API
+# Protobase Project
 
-ProtoBase is an authentication API that provides user signup and signin functionalities with token management. This project includes both backend and frontend implementations.
+## Overview
+Protobase is a web application that provides user authentication, two-factor authentication (2FA), and database management functionalities. The project is built using Flask for the backend and SQLite for the database.
 
 ## Features
-
-- User Signup with Username and Password
-- User Signup with Email, Username, and Password
-- User Signin with Username and Password
-- User Signin with Email, Username, and Password
-- API Token Generation and Management
-- Swagger UI for API Documentation
+- User Signup and Signin
+- Two-Factor Authentication (2FA) via OTP
+- Password Reset via Email
+- Project Management Dashboard
+- CRUD Operations on Databases
 
 ## Technologies Used
-
 - Python
 - Flask
 - SQLite
 - JavaScript
 - HTML/CSS
 
-## Getting Started
+## Usage
+- Email Signup: https://protobase.pythonanywhere.com/auth_api/email-signup/
+- Username Signup: https://protobase.pythonanywhere.com/auth_api/user-signup/
+- Email Signin: https://protobase.pythonanywhere.com/auth_api/email-signin/
+- Username Signin: https://protobase.pythonanywhere.com/auth_api/user-signin/
 
-### Accessing the API
+### User Authentication
+- **Signup**: Users can sign up using their email and username.
+- **Signin**: Users can sign in using their credentials.
+- **OTP**: An OTP is sent to the user's email for verification.
+- **Password Reset**: Users can reset their password via a link sent to their email.
 
-The API is hosted at `https://protobase.pythonanywhere.com/`. You can use the following endpoints to interact with the API:
+### Project Management
+- **Dashboard**: Users can view their projects on the dashboard.
+- **Add Project**: Users can add new projects.
+- **Delete Project**: Users can delete existing projects.
 
-### API Endpoints
+### Database Management
+- **Create Table**: Users can create new tables in their project databases.
+- **Insert Data**: Users can insert data into tables.
+- **Read Data**: Users can read data from tables.
+- **Update Data**: Users can update existing data in tables.
+- **Delete Data**: Users can delete data from tables.
 
-- **Signup**: `https://protobase.pythonanywhere.com/signup` (POST)
-- **Signin**: `https://protobase.pythonanywhere.com/signin` (POST)
-- **Email Signup**: `https://protobase.pythonanywhere.com/auth_api/email-signup/` (GET)
-- **Username Signup**: `https://protobase.pythonanywhere.com/auth_api/user-signup/` (GET)
-- **Email Signin**: `https://protobase.pythonanywhere.com/auth_api/email-signin/` (GET)
-- **Username Signin**: `https://protobase.pythonanywhere.com/auth_api/user-signin/` (GET)
+## API Endpoints
 
-### API Documentation
+### Authentication API
+- **Email Signup**: `/auth_api/email-signup/`
+- **Username Signup**: `/auth_api/user-signup/`
+- **Email Signin**: `/auth_api/email-signin/`
+- **Username Signin**: `/auth_api/user-signin/`
 
-The API documentation is available at `https://protobase.pythonanywhere.com/docs`.
+### Password Routes
+- **Forgot Password**: `/forgot_password`
+- **Reset Password**: `/reset_password/<username>`
 
-## Frontend
+### Database CRUD Routes
+- **Create Table**: `/create_table`
+- **Insert Data**: `/insert_data`
+- **Read Data**: `/read_data`
+- **Update Data**: `/update_data`
+- **Delete Data**: `/delete_data`
+- **Get Tables**: `/get_tables`
+- **DB CRUD Interface**: `/db_crud/<project_name>`
 
-The frontend includes forms for user signup and signin. The forms are located in the `templates/get-started.html` file.
+## Contributing
+Contributions are welcome! Please open an issue or submit a pull request for any changes.
 
 ## License
-
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
-
-## Contact
-
-For any inquiries, please contact [AkiTheMemeGod](https://github.com/AkiTheMemeGod).
+This project is licensed under the MIT License.
