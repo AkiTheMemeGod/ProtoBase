@@ -121,6 +121,24 @@ class ApiToken(Helpers):
         except TypeError:
             return []
 
+    def get_project_names(self, username):
+        """
+        Get all project names for the given username.
+
+        :param username: Username of the developer.
+        :return: List of project names.
+        """
+        try:
+            cur = self.con.cursor()
+            cur.execute("SELECT token FROM dev_api_tokens WHERE username=?", (username,))
+            projects = cur.fetchone()
+            if projects:
+                projects_dict = ast.literal_eval(projects[0])
+                return list(projects_dict.keys())
+            return []
+        except TypeError:
+            return []
+
     def validate_token(self, token):
         """
         Validate if the given token exists in the database.
@@ -169,10 +187,8 @@ class DevDashboard(ApiToken):
         password = self.sec.encrypt(username=username, password=password, email=email)
 
         data = (username, password)
-        print(data)
         cur.execute("SELECT username, password FROM dev_api_tokens")
         creds = cur.fetchall()
-        print(creds)
         return data in creds
 
     def signup_developer(self, username, password, email, user_otp):
@@ -347,3 +363,5 @@ class ProtoBaseAuthentication(DevDashboard):
                 return False, 400
         else:
             return True, 500
+
+
