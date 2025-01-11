@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SQLite CRUD Operations</title>
+    <link rel="stylesheet" href="/static/db_crud.css">
+    <link rel="stylesheet" href="/static/fontawesome/css/all.min.css">
+</head>
+<body>
+    <header>
+        <h1>ProtoBase</h1>
+        <nav>
+            <ul>
+                <li><a href="/">Home</a></li>
+                <li><a href="/docs">Documentation</a></li>
+            </ul>
+        </nav>
+    </header>
+    <div class="container">
+        <h1>DATABASE FOR {{ project_name }}</h1>
+        <form id="create_table_form" action="/create_table" method="post">
+            <h2>Create Table</h2>
+            <input type="hidden" name="project_name" value="{{ project_name }}">
+            <label for="table_name">Table Name:</label>
+            <input type="text" id="table_name" name="table_name" required>
+            <label for="columns">Define Columns:</label>
+            <div id="table_columns">
+                <input type="text" name="column_name[]" placeholder="Column Name" required>
+                <select name="column_type[]">
+                    <option value="INTEGER">INTEGER</option>
+                    <option value="TEXT">TEXT</option>
+                    <option value="REAL">REAL</option>
+                </select>
+            </div>
+            <button type="button" onclick="addColumnField()">Add Column</button>
+            <button type="submit">Create Table</button>
+        </form>
+        <br><br><br>
+        <form action="/read_data" method="post">
+            <h2>Read Data</h2>
+            <input type="hidden" name="project_name" value="{{ project_name }}">
+            <label for="table">Table Name:</label>
+            <select id="read_table" name="table" required>
+                <!-- Options populated dynamically -->
+            </select>
+            <button type="submit">Read Data</button>
+        </form>
+        <button class="logout-button" onclick="window.location.href='/databases'"><i class="fas fa-backward"></i> <strong> Back</strong></button>
+
+    </div>
+
+    <div id="flyout" class="flyout"></div>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            populateTableOptions();
+        });
+
+        function addColumnField() {
+            const tableColumns = document.getElementById('table_columns');
+            const fieldGroup = document.createElement('div');
+            fieldGroup.innerHTML = `
+                <input type="text" name="column_name[]" placeholder="Column Name" required>
+                <select name="column_type[]">
+                    <option value="INTEGER">INTEGER</option>
+                    <option value="TEXT">TEXT</option>
+                    <option value="REAL">REAL</option>
+                </select>
+            `;
+            tableColumns.appendChild(fieldGroup);
+        }
+
+        function populateTableOptions() {
+            const projectName = document.querySelector('input[name="project_name"]').value;
+            fetch(`/get_tables?project_name=${encodeURIComponent(projectName)}`)
+                .then(response => response.json())
+                .then(tables => {
+                    const readTableSelect = document.getElementById('read_table');
+                    readTableSelect.innerHTML = ''; // Clear previous options
+                    tables.forEach(table => {
+                        const option = document.createElement('option');
+                        option.value = table;
+                        option.textContent = table;
+                        readTableSelect.appendChild(option);
+                    });
+                })
+                .catch(error => console.error('Error fetching tables:', error));
+        }
+
+        document.getElementById('create_table_form').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const formData = new FormData(this);
+            fetch(this.action, {
+                method: this.method,
+                body: formData
+            })
+            .then(response => {
+                if (response.ok) {
+                    showFlyout('Table created successfully', 'copy');
+                    this.reset();
+                } else {
+                    showFlyout('Error creating table', 'delete');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showFlyout('Error creating table', 'delete');
+            });
+        });
+
+        function showFlyout(message, type) {
+            const flyout = document.getElementById('flyout');
+            flyout.textContent = message;
+            flyout.className = `flyout show ${type}`;
+            setTimeout(() => {
+                flyout.classList.remove('show');
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
