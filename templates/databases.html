@@ -3,9 +3,30 @@
 <head>
     <meta charset="UTF-8">
     <title>Databases</title>
+    <link rel="stylesheet" href="/static/main.css">
+    <link rel="stylesheet" href="/static/fontawesome/css/all.min.css">
 </head>
 <body>
-    <h1>Databases Page</h1>
-    <!-- Add databases page content here -->
+    <header>
+        <h1>ProtoBase</h1>
+        <nav>
+            <ul>
+                <li><a href="/">Home</a></li>
+                <li><a href="/docs">Documentation</a></li>
+            </ul>
+        </nav>
+    </header>
+    <div class="container">
+        <h1>Your Projects</h1>
+        <div class="tiles">
+            {% for project in projects %}
+            <div class="tile" onclick="window.location.href='/db_crud/{{ project }}'">
+                <i class="fas fa-database"></i>
+                <p>{{ project }}</p>
+            </div>
+            {% endfor %}
+        </div>
+        <button class="logout-button" onclick="window.location.href='/logout'"><i class="fas fa-sign-out-alt"></i> <strong> Logout</strong></button>
+    </div>
 </body>
 </html>
