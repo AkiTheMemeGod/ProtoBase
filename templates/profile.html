@@ -3,9 +3,46 @@
 <head>
     <meta charset="UTF-8">
     <title>Profile</title>
+    <link rel="stylesheet" href="/static/profile.css">
+        <link rel="stylesheet" href="/static/fontawesome/css/all.min.css">
+
 </head>
 <body>
-    <h1>Profile Page</h1>
-    <!-- Add profile page content here -->
+    <header>
+        <h1>ProtoBase</h1>
+        <nav>
+            <ul>
+                <li><a href="/">Home</a></li>
+                <li><a href="/docs">Documentation</a></li>
+            </ul>
+        </nav>
+    </header>
+    <div class="container">
+        <h1>Profile Page</h1>
+        <div>
+            <img src="data:image/png;base64,{{ user_info[2] | b64encode }}" alt="Profile Picture" class="profile-picture">
+            <p><strong>Username:</strong> {{ user_info[0] }}</p>
+            <p><strong>Email:</strong> {{ user_info[1] }}</p>
+        </div>
+        <div>
+            <h2>Change Profile Picture</h2>
+            <button id="uploadBtn" class="change-pic-button">Change Profile Picture</button>
+            <div id="uploadPopup" class="popup">
+                <div class="popup-content">
+                    <span class="close">&times;</span>
+                    <h3>Upload New Profile Picture</h3>
+                    <form id="uploadForm" method="POST" action="{{ url_for('profile') }}" enctype="multipart/form-data">
+                        <input type="file" id="pfp" name="pfp" accept="image/*" style="display: none;" required>
+                        <div id="dropArea">Drag & Drop or Click to Upload</div>
+                        <img id="preview" src="#" alt="Image Preview" style="display: none; width: 60%; height: 60%; border-radius: 30px; margin-top: 10px; align-self: center">
+                        <button type="submit">Upload</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+                <button class="logout-button" onclick="window.location.href='/dashboard'"><i class="fas fa-backward"></i> <strong> Back</strong></button>
+
+    </div>
+    <script src="/static/profile.js"></script>
 </body>
 </html>
