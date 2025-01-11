@@ -3,3 +3,5 @@ __pycache__/flask_app.cpython-310.pyc
 __pycache__/schemas.cpython-310.pyc
 __pycache__/security.cpython-310.pyc
 /misc and tests/
+/ddnskey.txt
+/requirements.txt
