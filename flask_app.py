@@ -587,12 +587,11 @@ def validate_api_token(token):
 def require_api_token():
     if request.endpoint in ['api_create_table', 'api_insert_data', 'api_read_data', 'api_update_data', 'api_delete_data']:
         token = request.json.get('api_token')
-        print(token)
         if not token or not validate_api_token(token):
             return jsonify({"message": "Invalid or missing API token"}), 403
 
 
-@app.route('/api/create_table', methods=['POST'])
+@app.route('/db_api/create_table', methods=['POST'])
 def api_create_table():
     data = request.get_json()
     username = data.get('username')
@@ -616,7 +615,7 @@ def api_create_table():
     return jsonify({"message": "Table created successfully"}), 200
 
 
-@app.route('/api/insert_data', methods=['POST'])
+@app.route('/db_api/insert_data', methods=['POST'])
 def api_insert_data():
     data = request.get_json()
     username = data.get('username')
@@ -644,7 +643,7 @@ def api_insert_data():
         return jsonify({"message": f"An error occurred: {e}"}), 500
 
 
-@app.route('/api/read_data', methods=['POST'])
+@app.route('/db_api/read_data', methods=['POST'])
 def api_read_data():
     data = request.get_json()
     username = data.get('username')
@@ -663,7 +662,7 @@ def api_read_data():
     return jsonify(data), 200
 
 
-@app.route('/api/update_data', methods=['POST'])
+@app.route('/db_api/update_data', methods=['POST'])
 def api_update_data():
     data = request.get_json()
     username = data.get('username')
@@ -690,7 +689,7 @@ def api_update_data():
         return jsonify({"message": f"An error occurred: {e}"}), 500
 
 
-@app.route('/api/delete_data', methods=['POST'])
+@app.route('/db_api/delete_data', methods=['POST'])
 def api_delete_data():
     data = request.get_json()
     username = data.get('username')
