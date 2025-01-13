@@ -6,8 +6,10 @@ import platform as p
 from paths import *
 if p.system() == 'Linux':
     path = linux
+    static_path = static_lin
 else:
     path = windows
+    static_path = static_win
 
 print(f"Starting Up in {p.system()} taking database path as : {path}")
 
@@ -206,7 +208,7 @@ class DevDashboard(ApiToken):
             if int(c_otp) == int(user_otp):
                 cur = self.con.cursor()
                 password = self.sec.encrypt(username=username, password=password, email=email)
-                data = (username, password, "{}", 0, email, open('static/img.png', 'rb').read())
+                data = (username, password, "{}", 0, email, open(f'{static_path}/img.png', 'rb').read())
                 cur.execute("INSERT INTO dev_api_tokens VALUES (?,?,?,?,?,?)", data)
                 self.con.commit()
                 return True
