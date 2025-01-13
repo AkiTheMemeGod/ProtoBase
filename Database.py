@@ -191,7 +191,8 @@ class DevDashboard(ApiToken):
         creds = cur.fetchall()
         return data in creds
 
-    def signup_developer(self, username, password, email, user_otp):
+    def signup_developer(self, username, password, email, user_otp, c_otp):
+
         """
         Sign up a new developer.
 
@@ -202,13 +203,16 @@ class DevDashboard(ApiToken):
         :return: True if signup was successful, False otherwise.
         """
         try:
-            cur = self.con.cursor()
-            password = self.sec.encrypt(username=username, password=password, email=email)
-            data = (username, password, "{}", 0, email, open('static/img.png', 'rb').read())
-            cur.execute("INSERT INTO dev_api_tokens VALUES (?,?,?,?,?,?)", data)
-            self.con.commit()
-            return True
+            if int(c_otp) == int(user_otp):
+                cur = self.con.cursor()
+                password = self.sec.encrypt(username=username, password=password, email=email)
+                data = (username, password, "{}", 0, email, open('static/img.png', 'rb').read())
+                cur.execute("INSERT INTO dev_api_tokens VALUES (?,?,?,?,?,?)", data)
+                self.con.commit()
+                return True
 
+            else:
+                return False
         except sq.IntegrityError:
             return False
 
@@ -377,5 +381,3 @@ class ProtoBaseAuthentication(DevDashboard):
                 return False, 400
         else:
             return True, 500
-
-
