@@ -7,6 +7,79 @@ import os
 import platform as p
 from paths import *
 import base64
+
+from flask_jwt_extended import (
+    JWTManager, create_access_token, create_refresh_token, jwt_required, get_jwt_identity
+)
+from datetime import timedelta
+
+app = Flask(__name__)
+app.config["JWT_SECRET_KEY"] = "your-secret-key"  # Change this to a secure key
+app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=1)
+app.config["JWT_REFRESH_TOKEN_EXPIRES"] = timedelta(days=7)
+
+jwt = JWTManager(app)
+
+
+@app.route('/auth_api/login/', methods=['POST'])
+def login():
+    """
+    Login route for authenticating users with JWT tokens.
+    """
+    data = request.json
+    usr = data.get('username')
+    pwd = data.get('password')
+    email = data.get('email', None)  # Optional email
+    token = data.get('token')
+
+    if not usr or not pwd or not token:
+        return jsonify({"message": "Invalid input parameters", "status-code": 400})
+
+    con = get_db()
+    db = ProtoBaseAuthentication(con)
+
+    if email:
+        status, code = db.signin_with_email(usr, pwd, email, token)
+    else:
+        status, code = db.signin_with_username(usr, pwd, token)
+
+    if status and code == 200:
+        access_token = create_access_token(identity=usr)
+        refresh_token = create_refresh_token(identity=usr)
+        return jsonify({
+            "message": "Login successful",
+            "status-code": 200,
+            "access_token": access_token,
+            "refresh_token": refresh_token
+        })
+    elif code == 400:
+        return jsonify({"message": "User not found or invalid credentials", "status-code": 400})
+    elif code == 500:
+        return jsonify({"message": "Invalid API token", "status-code": 500})
+    else:
+        return jsonify({"message": "Incorrect credentials", "status-code": 400})
+
+@app.route('/auth_api/refresh/', methods=['POST'])
+@jwt_required(refresh=True)
+def refresh():
+    """
+    Refresh the access token using a valid refresh token.
+    """
+    current_user = get_jwt_identity()
+    new_access_token = create_access_token(identity=current_user)
+    return jsonify({
+        "message": "Token refreshed",
+        "access_token": new_access_token
+    })
+
+
+@app.route('/protected', methods=['GET'])
+@jwt_required()
+def protected():
+    current_user = get_jwt_identity()
+    return jsonify({"logged_in_as": current_user})
+
+
 if p.system() == 'Linux':
     path = linux
 else:
