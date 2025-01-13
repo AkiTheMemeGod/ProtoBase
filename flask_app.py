@@ -1,6 +1,6 @@
 from flask import *
 from flask_cors import CORS
-from Database import ProtoBaseAuthentication, DevDashboard
+from Database import ProtoBaseAuthentication, DevDashboard, ApiToken
 from schemas import openapi_schema
 import sqlite3 as sq
 import os
@@ -23,9 +23,11 @@ def get_db():
         g.db = sq.connect(path)
     return g.db
 
+
 @app.template_filter('b64encode')
 def b64encode_filter(data):
     return base64.b64encode(data).decode('utf-8')
+
 
 """
 __________________________
@@ -94,9 +96,10 @@ def send_otp():
     db = DevDashboard(con)
 
     if not db.duplicate_email_check(email) and not db.duplicate_username_check(username, "dev_api_tokens"):
-        success, otp = db.auth.send_otp(email=email, username=username)
+        success, session['c_otp'] = db.auth.send_otp(email=email, username=username)
+
         if success:
-            return jsonify(success=True, otp=otp)
+            return jsonify(success=True)
         else:
             return jsonify(success=False, message="Failed to send OTP. Please try again.")
     else:
@@ -115,10 +118,11 @@ def signup():
     con = get_db()
     db = ProtoBaseAuthentication(con)
 
-    status = db.signup_developer(username, password, email, otp)
+    status = db.signup_developer(username, password, email, otp, session.get('c_otp'))
     if status:
         session["user_signed_in"] = True
         session["username"] = username
+        session.pop('c_otp', None)
         # session["token"] = token
         return jsonify(success=True)
     else:
@@ -167,8 +171,8 @@ def projects():
     username = session.get("username")
     con = get_db()
     db = DevDashboard(con)
-    projects = db.get_projects(username)
-    return render_template("projects.html", username=username, projects=projects)
+    proj = db.get_projects(username)
+    return render_template("projects.html", username=username, projects=proj)
 
 
 @app.route('/delete_project', methods=['POST'])
@@ -177,7 +181,7 @@ def delete_project():
     username = session.get('username')
     con = get_db()
     db = DevDashboard(con)
-    success = db.delete_project(username, project_name)
+    db.delete_project(username, project_name)
     return redirect(url_for('projects'))
 
 
@@ -187,7 +191,7 @@ def add_project():
     username = session.get('username')
     con = get_db()
     db = DevDashboard(con)
-    token = db.add_project(username, project_name)
+    db.add_project(username, project_name)
     return redirect(url_for('projects'))
 
 
@@ -232,7 +236,6 @@ def profile():
             else:
                 flash("Passwords do not match!", "danger")
 
-        # Handle profile picture change
         if 'pfp' in request.files:
             pfp = request.files['pfp']
             pfp_data = pfp.read()
@@ -249,7 +252,6 @@ def profile():
     return render_template('profile.html', user_info=user_info)
 
 
-
 @app.route('/databases')
 def databases():
     if not session.get("user_signed_in"):
@@ -257,8 +259,8 @@ def databases():
     username = session.get("username")
     con = get_db()
     db = DevDashboard(con)
-    projects = db.get_project_names(username)
-    return render_template("databases.html", projects=projects)
+    proj = db.get_project_names(username)
+    return render_template("databases.html", projects=proj)
 
 
 """
@@ -568,6 +570,149 @@ def db_crud(project_name):
     return render_template("DB_CRUD.html", project_name=project_name)
 
 
+"""
+__________________________
+DATABASE CRUD API ROUTES
+__________________________
+"""
+
+
+def validate_api_token(token):
+    con = get_db()
+    db = ApiToken(con)
+    return db.validate_token(token)
+
+
+@app.before_request
+def require_api_token():
+    if request.endpoint in ['api_create_table', 'api_insert_data', 'api_read_data', 'api_update_data', 'api_delete_data']:
+        token = request.json.get('api_token')
+        print(token)
+        if not token or not validate_api_token(token):
+            return jsonify({"message": "Invalid or missing API token"}), 403
+
+
+@app.route('/api/create_table', methods=['POST'])
+def api_create_table():
+    data = request.get_json()
+    username = data.get('username')
+    project_name = data.get('project_name')
+    table_name = data.get('table_name')
+    columns = data.get('columns')
+    column_types = data.get('column_types')
+
+    if not table_name or not columns or not column_types:
+        return jsonify({"message": "Invalid input"}), 400
+
+    column_definitions = ', '.join(f"{name} {dtype}" for name, dtype in zip(columns, column_types))
+    query = f"CREATE TABLE IF NOT EXISTS {table_name} ({column_definitions});"
+
+    conn = get_databases(username, project_name)
+    cursor = conn.cursor()
+    cursor.execute(query)
+    conn.commit()
+    conn.close()
+
+    return jsonify({"message": "Table created successfully"}), 200
+
+
+@app.route('/api/insert_data', methods=['POST'])
+def api_insert_data():
+    data = request.get_json()
+    username = data.get('username')
+    project_name = data.get('project_name')
+    table = data.get('table')
+    row_data = data.get('data')
+
+    if not row_data:
+        return jsonify({"message": "No data provided"}), 400
+
+    columns = ', '.join(row_data.keys())
+    placeholders = ', '.join('?' for _ in row_data)
+    values = tuple(row_data.values())
+
+    query = f"INSERT INTO {table} ({columns}) VALUES ({placeholders})"
+
+    try:
+        conn = get_databases(username, project_name)
+        cursor = conn.cursor()
+        cursor.execute(query, values)
+        conn.commit()
+        conn.close()
+        return jsonify({"message": "Data inserted successfully"}), 200
+    except sq.OperationalError as e:
+        return jsonify({"message": f"An error occurred: {e}"}), 500
+
+
+@app.route('/api/read_data', methods=['POST'])
+def api_read_data():
+    data = request.get_json()
+    username = data.get('username')
+    project_name = data.get('project_name')
+    table = data.get('table')
+    query = f"SELECT * FROM {table}"
+
+    conn = get_databases(username, project_name)
+    cursor = conn.cursor()
+    cursor.execute(query)
+    rows = cursor.fetchall()
+    columns = [description[0] for description in cursor.description]
+    conn.close()
+
+    data = [dict(zip(columns, row)) for row in rows]
+    return jsonify(data), 200
+
+
+@app.route('/api/update_data', methods=['POST'])
+def api_update_data():
+    data = request.get_json()
+    username = data.get('username')
+    project_name = data.get('project_name')
+    table = data.get('table')
+    where_clause = data.get('where')
+    update_data = data.get('data')
+
+    if not project_name or not table or not where_clause or not update_data:
+        return jsonify({"message": "Missing parameters"}), 400
+
+    set_clause = ', '.join(f"{key} = ?" for key in update_data)
+    values = tuple(update_data.values())
+
+    query = f"UPDATE {table} SET {set_clause} WHERE {where_clause}"
+    try:
+        conn = get_databases(username, project_name)
+        cursor = conn.cursor()
+        cursor.execute(query, values)
+        conn.commit()
+        conn.close()
+        return jsonify({"message": "Data updated successfully"}), 200
+    except sq.OperationalError as e:
+        return jsonify({"message": f"An error occurred: {e}"}), 500
+
+
+@app.route('/api/delete_data', methods=['POST'])
+def api_delete_data():
+    data = request.get_json()
+    username = data.get('username')
+    project_name = data.get('project_name')
+    table = data.get('table')
+    where_clause = data.get('condition')
+
+    if not project_name or not table or not where_clause:
+        return jsonify({"message": "Missing parameters"}), 400
+
+    query = f"DELETE FROM {table} WHERE {where_clause}"
+
+    try:
+        conn = get_databases(username, project_name)
+        cursor = conn.cursor()
+        cursor.execute(query)
+        conn.commit()
+        conn.close()
+        return jsonify({"message": "Data deleted successfully"}), 200
+    except sq.OperationalError as e:
+        return jsonify({"message": f"An error occurred: {e}"}), 500
+
+
 if __name__ == '__main__':
     app.run()
-# comment
