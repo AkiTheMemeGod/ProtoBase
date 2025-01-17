@@ -8,10 +8,14 @@
 </head>
 <body>
     <header>
-        <h1>ProtoBase</h1>
+            <nav><ul><li><a href="/" style="font-size: 30px">Protobase</a></li></ul></nav>
         <nav>
             <ul>
-                <li><a href="/">Home</a></li>
+                <li>{% if username %}<a href="/profile">Welcome back, {{ username }}</a>{% else %}<a href="/get-started">Sign In</a>{% endif %}</li>
+
+                <li><a href="/dashboard">Dashboard</a></li>
+                <li><a href="/databases">Databases</a></li>
+                <li><a href="/new_project">New Project</a></li>
                 <li><a href="/docs">Documentation</a></li>
             </ul>
         </nav>
