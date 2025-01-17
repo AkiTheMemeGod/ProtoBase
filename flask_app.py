@@ -561,7 +561,6 @@ def insert_data():
 
     if not data:
         return "No data provided", 400
-    # comment
     columns = ', '.join(data.keys())
     placeholders = ', '.join('?' for _ in data)
     values = tuple(data.values())
