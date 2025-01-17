@@ -13,11 +13,11 @@ from flask_jwt_extended import (
 )
 from datetime import timedelta
 
+
 app = Flask(__name__)
 app.config["JWT_SECRET_KEY"] = "your-secret-key"  # Change this to a secure key
 app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=1)
 app.config["JWT_REFRESH_TOKEN_EXPIRES"] = timedelta(days=7)
-
 
 
 if p.system() == 'Linux':
@@ -73,6 +73,7 @@ def get_started():
     return redirect(url_for("dashboard"))
 
 jwt = JWTManager(app)
+
 
 @app.route('/auth_api/login/', methods=['POST'])
 def login():
@@ -239,15 +240,15 @@ __________________________
 """
 
 
-@app.route("/projects")
-def projects():
+@app.route("/new_project")
+def new_project():
     if not session.get("user_signed_in"):
         return redirect(url_for("get_started"))
     username = session.get("username")
     con = get_db()
     db = DevDashboard(con)
     proj = db.get_projects(username)
-    return render_template("projects.html", username=username, projects=proj)
+    return render_template("new_project.html", username=username, projects=proj)
 
 
 @app.route('/delete_project', methods=['POST'])
@@ -267,9 +268,28 @@ def add_project():
     con = get_db()
     db = DevDashboard(con)
     db.add_project(username, project_name)
-    return redirect(url_for('projects'))
+    return redirect(url_for('new_project'))
 
 
+@app.route("/manage_project/<project_name>", methods=['POST', 'GET'])
+def manage_project(project_name):
+    if not session.get("user_signed_in"):
+        return redirect(url_for("get_started"))
+    username = session.get("username")
+    con = get_db()
+    db = DevDashboard(con)
+
+    # Fetch auth with email information
+    cur = con.cursor()
+    cur.execute("SELECT username, email, password FROM authwithemail WHERE project=?", (project_name,))
+    auth_with_email = cur.fetchall()
+
+    # Fetch auth without email information
+    cur.execute("SELECT username, password FROM authwithoutemail WHERE project=?", (project_name,))
+    auth_without_email = cur.fetchall()
+    print(auth_with_email)
+    print(auth_without_email)
+    return render_template('manage_project.html', project_name=project_name, auth_with_email=auth_with_email, auth_without_email=auth_without_email)
 """
 __________________________
     DASHBOARD ROUTES
@@ -336,6 +356,17 @@ def databases():
     db = DevDashboard(con)
     proj = db.get_project_names(username)
     return render_template("databases.html", projects=proj)
+
+
+@app.route('/projects')
+def projects():
+    if not session.get("user_signed_in"):
+        return redirect(url_for("get_started"))
+    username = session.get("username")
+    con = get_db()
+    db = DevDashboard(con)
+    proj = db.get_project_names(username)
+    return render_template("projects.html", projects=proj)
 
 
 """
