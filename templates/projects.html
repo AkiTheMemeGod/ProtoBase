@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Dashboard</title>
-    <link rel="stylesheet" href="/static/dashboard.css">
+    <title>Databases</title>
+    <link rel="stylesheet" href="/static/main.css">
     <link rel="stylesheet" href="/static/fontawesome/css/all.min.css">
 </head>
 <body>
@@ -17,54 +17,16 @@
         </nav>
     </header>
     <div class="container">
-        <h1>Welcome to your Dashboard</h1>
-        <p><strong>Welcome back, </strong> {{ username }}</p>
-        <form class="project-form" action="/add_project" method="post">
-            <input type="text" name="project_name" placeholder="Project Name" required>
-            <button type="submit"><i class="fas fa-plus"></i></button>
-        </form>
-        <table>
-            <tr>
-                <th>Project Name</th>
-                <th>Token</th>
-                <th>Uses</th>
-                <th>Action</th>
-            </tr>
-            {% for project, token, uses in projects %}
-            <tr>
-                <td>{{ project }}</td>
-                <td>{{ token }}</td>
-                <td>{{ uses }}</td>
-                <td>
-                    <form action="/delete_project" method="post" style="display:inline;">
-                        <input type="hidden" name="project_name" value="{{ project }}">
-                        <button type="submit" onclick="showFlyout('Project deleted', 'delete')"><i class="fas fa-trash"></i></button>
-                    </form>
-                    <button onclick="copyToClipboard('{{ token }}')"><i class="fas fa-copy"></i></button>
-                </td>
-            </tr>
+        <h1>Manage Your Projects</h1>
+        <div class="tiles">
+            {% for project in projects %}
+            <div class="tile" onclick="window.location.href='/manage_project/{{ project }}'">
+                <i class="fas fa-project-diagram"></i>
+                <p>{{ project }}</p>
+            </div>
             {% endfor %}
-        </table>
+        </div>
         <button class="logout-button" onclick="window.location.href='/dashboard'"><i class="fas fa-backward"></i> <strong> Back</strong></button>
     </div>
-    <div id="flyout" class="flyout"></div>
-<script>
-    function copyToClipboard(text) {
-        navigator.clipboard.writeText(text).then(function() {
-            showFlyout('Token copied to clipboard', 'copy');
-        }, function(err) {
-            console.error('Could not copy text: ', err);
-        });
-    }
-
-    function showFlyout(message, type) {
-        const flyout = document.getElementById('flyout');
-        flyout.textContent = message;
-        flyout.className = `flyout show ${type}`;
-        setTimeout(() => {
-            flyout.classList.remove('show');
-        }, 3000);
-    }
-</script>
 </body>
 </html>
