@@ -3,7 +3,7 @@ body {
     margin: 0;
     font-family: monospace, monospace;
     color: #ffffff;
-    background: linear-gradient(135deg, #1e1e2f, #2b2b3d);
+    background: #000000; /* Changed to pure black */
 }
 
 header {
@@ -39,7 +39,7 @@ header nav ul li a {
 }
 
 header nav ul li a:hover {
-    color: #ffe600;
+    color: #9e2fff; /* Changed to purple */
 }
 
 .container {
@@ -85,7 +85,7 @@ header nav ul li a:hover {
     padding: 15px 30px;
     font-size: 1.2rem;
     color: #ffffff;
-    background: linear-gradient(90deg, #6a00ff, #9e2fff);
+    background: #6a00ff; /* Changed to purple */
     border: none;
     border-radius: 50px;
     cursor: pointer;
@@ -93,7 +93,7 @@ header nav ul li a:hover {
 }
 
 .cta button:hover {
-    background: linear-gradient(90deg, #9e2fff, #6a00ff);
+    background: #9e2fff; /* Changed to purple */
     transform: scale(1.1);
 }
 

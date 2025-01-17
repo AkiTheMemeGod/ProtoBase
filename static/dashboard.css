@@ -3,7 +3,7 @@ body {
     margin: 0;
     font-family: monospace, monospace;
     color: #ffffff;
-    background: linear-gradient(135deg, #1e1e2f, #2b2b3d);
+    background: #000000; /* Changed to pure black */
 }
 header {
     background: linear-gradient(90deg, #6a00ff, #9e2fff);
@@ -212,3 +212,4 @@ a:hover, button:hover {
     background-color: #4CAF50;
     border: 2px solid #45a049;
 }
+
