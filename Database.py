@@ -175,6 +175,24 @@ class ApiToken(Helpers):
         cur.execute("UPDATE dev_api_tokens SET uses = uses + 1 WHERE token=?", (token,))
         self.con.commit()
 
+    def get_project_name_by_token(self, token):
+        """
+        Get the project name associated with the given token.
+
+        :param token: API token to search for.
+        :return: Project name if token is found, None otherwise.
+        """
+        cur = self.con.cursor()
+        cur.execute("SELECT token FROM dev_api_tokens")
+        projects = cur.fetchall()  # Fetch all rows
+
+        for row in projects:
+            projects_dict = ast.literal_eval(row[0])  # Safely parse string to dictionary
+            for project_name, project_token in projects_dict.items():
+                if project_token == token:
+                    return project_name
+        return None
+
 
 class DevDashboard(ApiToken):
 
@@ -300,9 +318,10 @@ class ProtoBaseAuthentication(DevDashboard):
             cur = self.con.cursor()
             if not self.duplicate_email_check(email):
                 password = self.sec.encrypt(username, password, email)
-
-                cur.execute("INSERT INTO authwithemail VALUES (?,?,?)", (username, password, email))
+                project_name = self.get_project_name_by_token(token)
+                cur.execute("INSERT INTO authwithemail VALUES (?,?,?,?)", (username, password, email, project_name))
                 self.update_token_usage(token)
+
                 self.con.commit()
                 self.con.close()
                 return 200
@@ -324,8 +343,9 @@ class ProtoBaseAuthentication(DevDashboard):
             cur = self.con.cursor()
             if not self.duplicate_username_check(username, "authwithoutemail"):
                 password = self.sec.encrypt(username, password)
+                project_name = self.get_project_name_by_token(token)
 
-                cur.execute("INSERT INTO authwithoutemail VALUES (?,?)", (username, password))
+                cur.execute("INSERT INTO authwithoutemail VALUES (?,?,?)", (username, password, project_name))
                 self.update_token_usage(token)
 
                 self.con.commit()
