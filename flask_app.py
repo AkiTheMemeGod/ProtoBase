@@ -355,7 +355,7 @@ def databases():
     con = get_db()
     db = DevDashboard(con)
     proj = db.get_project_names(username)
-    return render_template("databases.html", projects=proj)
+    return render_template("databases.html", projects=proj, username=username)
 
 
 @app.route('/projects')
@@ -366,7 +366,7 @@ def projects():
     con = get_db()
     db = DevDashboard(con)
     proj = db.get_project_names(username)
-    return render_template("projects.html", projects=proj)
+    return render_template("projects.html", projects=proj, username=username)
 
 
 """
