@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Manage Project</title>
+    <link rel="stylesheet" href="/static/main.css">
+    <link rel="stylesheet" href="/static/fontawesome/css/all.min.css">
+    <style>
+        .nav-buttons {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+        .nav-buttons button {
+            margin: 0 10px;
+            padding: 10px 20px;
+            cursor: pointer;
+            background: linear-gradient(90deg, #6a00ff, #9e2fff);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            transition: background 0.3s, transform 0.3s;
+        }
+        .nav-buttons button:hover {
+            background: linear-gradient(90deg, #5a00e0, #8e2fd0);
+            transform: scale(1.05);
+        }
+        .table-container {
+            display: none;
+        }
+        .table-container.active {
+            display: block;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background: linear-gradient(0deg, #6a00ff, #9e2fff);
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>ProtoBase</h1>
+        <nav>
+            <ul>
+                <li><a href="/">Home</a></li>
+                <li><a href="/docs">Documentation</a></li>
+            </ul>
+        </nav>
+    </header>
+    <div class="container">
+        <h1>Manage Project: {{ project_name }}</h1>
+        <div class="nav-buttons">
+            <button id="toggle-button" onclick="toggleSection()">Show Auth without Email</button>
+        </div>
+        <div id="auth-with-email" class="table-container active">
+            <h2>Auth with Email</h2>
+            <table>
+                <tr>
+                    <th>Username</th>
+                    <th>Email</th>
+                    <th>Password</th>
+                </tr>
+                {% for user in auth_with_email %}
+                <tr>
+                    <td>{{ user.0 }}</td>
+                    <td>{{ user.1 }}</td>
+                    <td>{{ user.2 }}</td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+        <div id="auth-without-email" class="table-container">
+            <h2>Auth without Email</h2>
+            <table>
+                <tr>
+                    <th>Username</th>
+                    <th>Password</th>
+                </tr>
+                {% for user in auth_without_email %}
+                <tr>
+                    <td>{{ user.0 }}</td>
+                    <td>{{ user.1 }}</td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+        <button class="logout-button" onclick="window.location.href='/projects'"><i class="fas fa-backward"></i> <strong> Back</strong></button>
+    </div>
+    <script>
+        function toggleSection() {
+            const authWithEmail = document.getElementById('auth-with-email');
+            const authWithoutEmail = document.getElementById('auth-without-email');
+            const toggleButton = document.getElementById('toggle-button');
+
+            if (authWithEmail.classList.contains('active')) {
+                authWithEmail.classList.remove('active');
+                authWithoutEmail.classList.add('active');
+                toggleButton.textContent = 'Show Auth with Email';
+            } else {
+                authWithEmail.classList.add('active');
+                authWithoutEmail.classList.remove('active');
+                toggleButton.textContent = 'Show Auth without Email';
+            }
+        }
+    </script>
+</body>
+</html>
