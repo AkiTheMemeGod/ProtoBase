@@ -691,7 +691,7 @@ def validate_api_token(token):
 @app.before_request
 def require_api_token():
     if request.endpoint in ['api_create_table', 'api_insert_data', 'api_read_data', 'api_update_data', 'api_delete_data']:
-        token = request.json.get('api_token')
+        token = request.headers.get('Authorization')
         if not token or not validate_api_token(token):
             return jsonify({"message": "Invalid or missing API token"}), 403
 
@@ -775,18 +775,20 @@ def api_update_data():
     table = data.get('table')
     where_clause = data.get('where')
     update_data = data.get('data')
+    column, data = tuple(where_clause.split("="))
 
     if not project_name or not table or not where_clause or not update_data:
         return jsonify({"message": "Missing parameters"}), 400
 
     set_clause = ', '.join(f"{key} = ?" for key in update_data)
-    values = tuple(update_data.values())
+    values = list(update_data.values())
+    values.append(data)
 
-    query = f"UPDATE {table} SET {set_clause} WHERE {where_clause}"
+    query = f"UPDATE {table} SET {set_clause} WHERE {column} = ?"
     try:
         conn = get_databases(username, project_name)
         cursor = conn.cursor()
-        cursor.execute(query, values)
+        cursor.execute(query, tuple(values))
         conn.commit()
         conn.close()
         return jsonify({"message": "Data updated successfully"}), 200
@@ -801,16 +803,17 @@ def api_delete_data():
     project_name = data.get('project_name')
     table = data.get('table')
     where_clause = data.get('condition')
-
+    column, data = tuple(where_clause.split("="))
+    print(data)
     if not project_name or not table or not where_clause:
         return jsonify({"message": "Missing parameters"}), 400
 
-    query = f"DELETE FROM {table} WHERE {where_clause}"
+    query = f"DELETE FROM {table} WHERE {column} = ?"
 
     try:
         conn = get_databases(username, project_name)
         cursor = conn.cursor()
-        cursor.execute(query)
+        cursor.execute(query, (data, ))
         conn.commit()
         conn.close()
         return jsonify({"message": "Data deleted successfully"}), 200
