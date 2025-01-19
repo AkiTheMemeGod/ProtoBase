@@ -65,8 +65,8 @@ def close_db(exception=None):
 
 @app.route('/')
 def homepage():
-
-    return render_template("index.html", pub_dev_downloads=pub_dev_downloads())
+    downloads = pub_dev_downloads()
+    return render_template("index.html", pub_dev_downloads=downloads)
 
 
 @app.route('/get-started')

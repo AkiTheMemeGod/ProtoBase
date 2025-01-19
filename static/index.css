@@ -190,3 +190,31 @@ a:hover, button:hover {
     transform: translateY(-5px);
     box-shadow: 0 0 15px 5px rgba(106, 0, 255, 0.7); /* Add glowing border */
 }
+.downloads {
+    margin: 50px 0;
+    text-align: center;
+}
+
+.downloads-card {
+    display: inline-block;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    padding: 20px;
+    text-align: center;
+    transition: transform 0.3s, box-shadow 0.3s;
+    cursor: pointer;
+    width: 300px; /* Adjusted width */
+    margin: 0 auto;
+    text-decoration: none; /* Remove underline from link */
+    color: inherit; /* Inherit text color */
+}
+
+.downloads-card img {
+    max-width: 80px;
+    margin-bottom: 10px;
+}
+
+.downloads-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 0 15px 5px rgba(106, 0, 255, 0.7);
+}
