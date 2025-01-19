@@ -7,6 +7,8 @@ import os
 import platform as p
 from paths import *
 import base64
+from web_scrapers import *
+
 
 from flask_jwt_extended import (
     JWTManager, create_access_token, create_refresh_token, jwt_required, get_jwt_identity
@@ -63,7 +65,8 @@ def close_db(exception=None):
 
 @app.route('/')
 def homepage():
-    return render_template("index.html")
+
+    return render_template("index.html", pub_dev_downloads=pub_dev_downloads())
 
 
 @app.route('/get-started')
