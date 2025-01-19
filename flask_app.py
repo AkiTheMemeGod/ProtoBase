@@ -8,6 +8,7 @@ import platform as p
 from paths import *
 import base64
 from web_scrapers import *
+from flask_caching import Cache
 
 
 from flask_jwt_extended import (
@@ -20,6 +21,9 @@ app = Flask(__name__)
 app.config["JWT_SECRET_KEY"] = "your-secret-key"  # Change this to a secure key
 app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=1)
 app.config["JWT_REFRESH_TOKEN_EXPIRES"] = timedelta(days=7)
+app.secret_key = "#$TL#$T#4MH3l3h4o8jkwbfdo8ho8234jbsdf"
+
+cache = Cache(app, config={'CACHE_TYPE': 'simple'})
 
 
 if p.system() == 'Linux':
@@ -27,10 +31,8 @@ if p.system() == 'Linux':
 else:
     path = windows
 print(f"Starting Up in {p.system()} taking database path as : {path}")
-app = Flask(__name__)
 CORS(app)
 
-app.secret_key = "#$TL#$T#4MH3l3h4o8jkwbfdo8ho8234jbsdf"
 
 
 def get_db():
@@ -64,6 +66,7 @@ def close_db(exception=None):
 
 
 @app.route('/')
+@cache.cached(timeout=3600)
 def homepage():
     downloads = pub_dev_downloads()
     return render_template("index.html", pub_dev_downloads=downloads)
