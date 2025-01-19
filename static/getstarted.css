@@ -112,3 +112,37 @@ a:hover {
     white-space: pre-wrap;
 }
 
+footer {
+    text-align: center;
+    padding: 20px;
+    background: #2b2b3d;
+    margin-top: 50px;
+    color: #ffffff;
+}
+
+footer p {
+    margin: 0;
+}
+
+.footer-nav ul {
+    list-style: none;
+    padding: 0;
+    margin: 10px 0 0;
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+}
+
+.footer-nav ul li {
+    display: inline;
+}
+
+.footer-nav ul li a {
+    color: #ffffff;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.footer-nav ul li a:hover {
+    color: #9e2fff;
+}

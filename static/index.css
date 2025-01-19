@@ -3,7 +3,7 @@ body {
     margin: 0;
     font-family: monospace, monospace;
     color: #ffffff;
-    background: #000000; /* Changed to pure black */
+    background: black; /* Changed to pure black */
 }
 
 header {
@@ -148,4 +148,45 @@ a:hover, button:hover {
 
 .container, .features ul li, .cta button {
     animation: fadeIn 1s ease-in-out;
+}
+.features-grid {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+    flex-wrap: nowrap; /* Ensure no wrapping */
+}
+
+.feature-card {
+    flex: 1 1 22%; /* Adjust the width to fit four cards in a row */
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    padding: 20px;
+    text-align: center;
+    transition: transform 0.3s;
+    cursor: pointer;
+}
+
+.feature-card img {
+    max-width: 50px;
+    margin-bottom: 10px;
+}
+
+.feature-card:hover {
+    transform: translateY(-5px);
+}
+
+@media (max-width: 768px) {
+    .feature-card {
+        flex: 1 1 45%; /* Adjust for smaller screens */
+    }
+}
+
+@media (max-width: 480px) {
+    .feature-card {
+        flex: 1 1 100%; /* Stack cards on very small screens */
+    }
+}
+.feature-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 0 15px 5px rgba(106, 0, 255, 0.7); /* Add glowing border */
 }
