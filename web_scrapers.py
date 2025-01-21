@@ -2,11 +2,12 @@ import requests
 from bs4 import BeautifulSoup
 from requests.exceptions import ProxyError, RequestException
 
+
 def pub_dev_downloads():
     url = "https://pub.dev/packages/proto_base_client/score"
-    scraper_api_url = f"http://api.scraperapi.com?api_key=7cf09f929c336f8ab268d62f10a0b4b9&url={url}"
+    scraper_api_url = f"https://scrapenest.onrender.com/scrape?url={url}"
     try:
-        response = requests.get(scraper_api_url)
+        response = requests.api.get(scraper_api_url)
         response.raise_for_status()
         soup = BeautifulSoup(response.text, "html.parser")
         downloads_element = soup.find("div", class_="packages-score packages-score-downloads")
@@ -14,7 +15,7 @@ def pub_dev_downloads():
         return downloads_value
     except ProxyError as e:
         print(f"ProxyError: {e}")
-        return "N/A"  # Return a default value or handle accordingly
+        return "N/A"
     except RequestException as e:
         print(f"RequestException: {e}")
         return "N/A"
