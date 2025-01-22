@@ -81,7 +81,7 @@ jwt = JWTManager(app)
 @app.route('/auth_api/login/', methods=['POST'])
 def login():
     """
-    Login route for authenticating users with JWT tokens.
+    Login route for authenticating the users with JWT tokens.
     """
     data = request.json
     usr = data.get('usr')
