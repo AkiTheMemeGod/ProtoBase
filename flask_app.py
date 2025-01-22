@@ -18,7 +18,7 @@ from datetime import timedelta
 
 
 app = Flask(__name__)
-app.config["JWT_SECRET_KEY"] = "your-secret-key"  # Change this to a secure key
+app.config["JWT_SECRET_KEY"] = "k3h45k3hb6k4hb6k3b6k4bkj3523jbkralkfsldfs"
 app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=1)
 app.config["JWT_REFRESH_TOKEN_EXPIRES"] = timedelta(days=7)
 app.secret_key = "#$TL#$T#4MH3l3h4o8jkwbfdo8ho8234jbsdf"
@@ -32,7 +32,6 @@ else:
     path = windows
 print(f"Starting Up in {p.system()} taking database path as : {path}")
 CORS(app)
-
 
 
 def get_db():
