@@ -10,12 +10,10 @@ import base64
 from web_scrapers import *
 from flask_caching import Cache
 
-
 from flask_jwt_extended import (
     JWTManager, create_access_token, create_refresh_token, jwt_required, get_jwt_identity
 )
 from datetime import timedelta
-
 
 app = Flask(__name__)
 app.config["JWT_SECRET_KEY"] = "k3h45k3hb6k4hb6k3b6k4bkj3523jbkralkfsldfs"
@@ -24,7 +22,6 @@ app.config["JWT_REFRESH_TOKEN_EXPIRES"] = timedelta(days=7)
 app.secret_key = "#$TL#$T#4MH3l3h4o8jkwbfdo8ho8234jbsdf"
 
 cache = Cache(app, config={'CACHE_TYPE': 'simple'})
-
 
 if p.system() == 'Linux':
     path = linux
@@ -76,6 +73,7 @@ def get_started():
     if not session.get("user_signed_in"):
         return render_template("get-started.html")
     return redirect(url_for("dashboard"))
+
 
 jwt = JWTManager(app)
 
@@ -294,7 +292,10 @@ def manage_project(project_name):
     auth_without_email = cur.fetchall()
     print(auth_with_email)
     print(auth_without_email)
-    return render_template('manage_project.html', project_name=project_name, auth_with_email=auth_with_email, auth_without_email=auth_without_email)
+    return render_template('manage_project.html', project_name=project_name, auth_with_email=auth_with_email,
+                           auth_without_email=auth_without_email)
+
+
 """
 __________________________
     DASHBOARD ROUTES
@@ -601,7 +602,7 @@ def read_data():
     if data:
         return render_template('read_data.html', project_name=project_name, table=table, rows=data)
     else:
-        return render_template("empty.html",  table=table, project_name=project_name)
+        return render_template("empty.html", table=table, project_name=project_name)
 
 
 @app.route('/update_data', methods=['POST'])
@@ -695,7 +696,8 @@ def validate_api_token(token):
 
 @app.before_request
 def require_api_token():
-    if request.endpoint in ['api_create_table', 'api_insert_data', 'api_read_data', 'api_update_data', 'api_delete_data']:
+    if request.endpoint in ['api_create_table', 'api_insert_data', 'api_read_data', 'api_update_data',
+                            'api_delete_data']:
         token = request.headers.get('Authorization')
         if not token or not validate_api_token(token):
             return jsonify({"message": "Invalid or missing API token"}), 403
@@ -818,7 +820,7 @@ def api_delete_data():
     try:
         conn = get_databases(username, project_name)
         cursor = conn.cursor()
-        cursor.execute(query, (data, ))
+        cursor.execute(query, (data,))
         conn.commit()
         conn.close()
         return jsonify({"message": "Data deleted successfully"}), 200
