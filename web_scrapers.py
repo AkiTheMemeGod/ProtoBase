@@ -6,14 +6,16 @@ from requests.exceptions import ProxyError, RequestException
 def pub_dev_downloads():
     url = "https://pub.dev/packages/proto_base_client/score"
     scraper_api_url = f"https://scrapenest.onrender.com/scrape?url={url}"
-    try:
-        response = requests.api.get(scraper_api_url)
-        response.raise_for_status()
-        soup = BeautifulSoup(response.text, "html.parser")
-        downloads_element = soup.find("div", class_="packages-score packages-score-downloads")
-        downloads_value = downloads_element.find("span", class_="packages-score-value-number").text
-        return downloads_value
-    except ProxyError as e:
+    # try:
+    response = requests.api.get(scraper_api_url)
+    response.raise_for_status()
+    soup = BeautifulSoup(response.text, "html.parser")
+    downloads_element = soup.find("div", class_="packages-score packages-score-downloads")
+    downloads_value = downloads_element.find("span", class_="packages-score-value-number").text
+    return downloads_value
+
+
+"""    except ProxyError as e:
         print(f"ProxyError: {e}")
         return "N/A"
     except RequestException as e:
@@ -21,4 +23,4 @@ def pub_dev_downloads():
         return "N/A"
     except Exception as e:
         print(f"An error occurred: {e}")
-        return "N/A"
+        return "N/A"""
