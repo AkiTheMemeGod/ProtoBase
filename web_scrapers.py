@@ -5,8 +5,8 @@ from requests.exceptions import ProxyError, RequestException
 
 def pub_dev_downloads():
     url = "https://pub.dev/packages/proto_base_client/score"
-    scraper_api_url = f"https://scrapenest.onrender.com/scrape?url={url}"
-    # try:
+    scraper_api_url = f"http://knowledgetotal.com:4097/scrape?url={url}"
+    # try
     response = requests.api.get(scraper_api_url)
     response.raise_for_status()
     soup = BeautifulSoup(response.text, "html.parser")
