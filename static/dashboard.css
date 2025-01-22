@@ -1,7 +1,7 @@
 /* Futuristic and Modern Styles for Dashboard */
 body {
     margin: 0;
-    font-family: monospace, monospace;
+    font-family: 'Roboto', 'Montserrat', 'Lato', sans-serif;
     color: #ffffff;
     background: #000000; /* Changed to pure black */
 }

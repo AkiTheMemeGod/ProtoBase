@@ -1,13 +1,13 @@
 /* Futuristic and Modern Styles */
 body {
     margin: 0;
-    font-family: monospace, monospace;
+    font-family: 'Roboto', 'Montserrat', 'Lato', sans-serif;
     color: #ffffff;
     background: black; /* Changed to pure black */
 }
 
 header {
-    background: linear-gradient(90deg, #6a00ff, #9e2fff);
+    background: linear-gradient(90deg, rgba(2,0,36,1) 0%, #4242cf 33%, rgba(0,212,255,1) 89%);
     padding: 20px 10%;
     display: flex;
     justify-content: space-between;
@@ -59,7 +59,7 @@ header nav ul li a:hover {
 }
 
 .features, .about, .contact {
-    margin: 50px 0;
+    margin: 5px 0;
 }
 
 .features ul {
@@ -82,10 +82,12 @@ header nav ul li a:hover {
 
 
 footer {
-    text-align: center;
-    padding: 20px;
+    font-family: 'Montserrat', 'Roboto', 'Lato', sans-serif;
+
+    /* text-align: center; */
+    padding: 10px 5px;
     background: #2b2b3d;
-    margin-top: 50px;
+    /* margin-top: 50px; */
 }
 
 footer p {
@@ -172,10 +174,10 @@ a:hover, button:hover {
 }
 .feature-card:hover {
     transform: translateY(-5px);
-    box-shadow: 0 0 15px 5px rgba(106, 0, 255, 0.7); /* Add glowing border */
+    box-shadow: 0 0 15px 5px #4343d4; /* Add glowing border */
 }
 .downloads {
-    margin: 50px 0;
+    margin: 10px 0;
     text-align: center;
 }
 
@@ -200,7 +202,7 @@ a:hover, button:hover {
 
 .downloads-card:hover {
     transform: translateY(-5px);
-    box-shadow: 0 0 15px 5px rgba(106, 0, 255, 0.7);
+    box-shadow: 0 0 15px 5px #4242cf;
 }
 
 /* From Uiverse.io by gharsh11032000 */
@@ -214,8 +216,8 @@ a:hover, button:hover {
   background-color: inherit;
   border-radius: 100px;
   font-weight: 600;
-  color: #9e2fff;
-  box-shadow: 0 0 0 2px #9e2fff;
+  color: #ffffff;
+  box-shadow: 0 0 0 2px #4242cf;
   cursor: pointer;
   overflow: hidden;
   transition: all 0.6s cubic-bezier(0.23, 1, 0.32, 1);
@@ -224,7 +226,7 @@ a:hover, button:hover {
 .animated-button svg {
   position: absolute;
   width: 24px;
-  fill: #9e2fff;
+  fill: #4242cf;
   z-index: 9;
   transition: all 0.8s cubic-bezier(0.23, 1, 0.32, 1);
 }
@@ -244,7 +246,7 @@ a:hover, button:hover {
   transform: translate(-50%, -50%);
   width: 20px;
   height: 20px;
-  background-color: #9e2fff;
+  background-color: #4242cf;
   border-radius: 50%;
   opacity: 0;
   transition: all 0.8s cubic-bezier(0.23, 1, 0.32, 1);
@@ -259,7 +261,7 @@ a:hover, button:hover {
 
 .animated-button:hover {
   box-shadow: 0 0 0 12px transparent;
-  color: #212121;
+  color: #ffffff;
   border-radius: 12px;
 }
 
@@ -456,9 +458,75 @@ a:hover, button:hover {
   backdrop-filter: blur(4px);
 }
 
+/* From Uiverse.io by vinodjangid07 */
+.Btn {
+    width: 45px;
+    height: 45px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    background-color: transparent;
+    position: relative;
+    /* overflow: hidden; */
+    border-radius: 7px;
+    cursor: pointer;
+    transition: all .3s;
+  }
+
+  .svgContainer {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: transparent;
+    backdrop-filter: blur(0px);
+    letter-spacing: 0.8px;
+    border-radius: 10px;
+    transition: all .3s;
+    border: 1px solid rgba(156, 156, 156, 0.466);
+  }
+
+  .BG {
+    position: absolute;
+    content: "";
+    width: 100%;
+    height: 100%;
+    background: #c06161;
+    z-index: -1;
+    border-radius: 10px;
+    pointer-events: none;
+    transition: all .3s;
+  }
+
+  .Btn:hover .BG {
+    transform: rotate(35deg);
+    transform-origin: bottom;
+  }
+
+  .Btn:hover .svgContainer {
+    background-color: rgba(156, 156, 156, 0.466);
+    backdrop-filter: blur(4px);
+  }
+
+
 .social-links {
     display: flex;
-    justify-content: center;
-    align-items: center;
-    margin-top: 20px;
+    justify-content: right;
+    align-items: left;
+    /* margin-top: 20px; */
+}
+.copy {
+    display: flex;
+    justify-content: right;
+    align-items: right;
+    margin-top: 10px;
+}
+
+.year {
+    color: #ce672a;
+}
+.year span {
+    color: #ffffff;
 }

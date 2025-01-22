@@ -12,7 +12,7 @@ html {
 }
 
 body {
-    font-family: monospace, monospace;
+    font-family: 'Roboto', 'Montserrat', 'Lato', sans-serif;
 
     margin: 0;
     background: #fafafa;

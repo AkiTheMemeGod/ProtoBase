@@ -1,12 +1,12 @@
 /* Futuristic and Modern Styles for Read Data */
 body {
     margin: 0;
-    font-family: monospace, monospace;
+    font-family: 'Roboto', 'Montserrat', 'Lato', sans-serif;
     color: #ffffff;
     background: #000000; /* Changed to pure black */
 }
 header {
-    background: linear-gradient(90deg, #6a00ff, #9e2fff);
+    background: linear-gradient(90deg, rgba(2,0,36,1) 0%, #4242cf 33%, rgba(0,212,255,1) 89%);
     padding: 20px 10%;
     display: flex;
     justify-content: space-between;

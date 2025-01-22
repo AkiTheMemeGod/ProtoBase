@@ -5,3 +5,5 @@ __pycache__/security.cpython-310.pyc
 /misc and tests/
 /ddnskey.txt
 /requirements.txt
+.DS_Store
+__pycache__/*
