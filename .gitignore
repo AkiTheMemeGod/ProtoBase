@@ -7,3 +7,4 @@ __pycache__/security.cpython-310.pyc
 /requirements.txt
 .DS_Store
 __pycache__/*
+/paths.py
