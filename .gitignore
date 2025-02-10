@@ -8,3 +8,5 @@ __pycache__/security.cpython-310.pyc
 .DS_Store
 __pycache__/*
 /paths.py
+/Authentication.db
+/cred.py
