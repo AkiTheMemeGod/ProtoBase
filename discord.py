@@ -16,5 +16,3 @@ def send_discord_notification(username, email):
         print("✅ Discord notification sent successfully.")
     else:
         print(f"❌ Failed to send Discord notification: {response.status_code}, {response.text}")
-
-send_discord_notification("Akash", "mail.com")
