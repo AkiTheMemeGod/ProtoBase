@@ -1,7 +1,6 @@
 import json
 import requests
-
-DISCORD_WEBHOOK_URL = "https://discord.com/api/webhooks/1345391739933818950/MnK0mzcM8cj4L80yJmsc6KPGlNeKXggqzKdFDUibJutk_zAEuprYu8b9-mkj6y84I4iz"
+from webhooks import DISCORD_WEBHOOK_URL
 
 def send_discord_notification(username, email):
     data = {
@@ -30,7 +29,7 @@ def send_discord_notification(username, email):
     response = requests.post(DISCORD_WEBHOOK_URL, data=json.dumps(data), headers=headers)
 
     if response.status_code == 204:
-        print("✅ Discord notification sent successfully.")
+        print("✅Discord notification sent successfully.")
     else:
-        print(f"❌ Failed to send Discord notification: {response.status_code}, {response.text}")
+        print(f"❌Failed to send Discord notification: {response.status_code}, {response.text}")
 
