@@ -34,4 +34,3 @@ def send_discord_notification(username, email):
     else:
         print(f"❌ Failed to send Discord notification: {response.status_code}, {response.text}")
 
-send_discord_notification("Akash", "akash@gmail.com")
