@@ -5,7 +5,24 @@ DISCORD_WEBHOOK_URL = "https://discord.com/api/webhooks/1345391739933818950/MnK0
 
 def send_discord_notification(username, email):
     data = {
-        "content": f"🎉 New user signed up!\n👤 **Username:** {username}\n📧 **Email:** {email}",
+        "embeds": [
+            {
+                "title": "🎉 New User Signed Up!",
+                "color": 3066993,  # Green color
+                "fields": [
+                    {
+                        "name": "👤 Username",
+                        "value": username,
+                        "inline": True
+                    },
+                    {
+                        "name": "📧 Email",
+                        "value": email,
+                        "inline": True
+                    }
+                ]
+            }
+        ],
         "username": "Protobase"
     }
 
@@ -16,3 +33,5 @@ def send_discord_notification(username, email):
         print("✅ Discord notification sent successfully.")
     else:
         print(f"❌ Failed to send Discord notification: {response.status_code}, {response.text}")
+
+send_discord_notification("Akash", "akash@gmail.com")
