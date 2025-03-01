@@ -9,6 +9,8 @@ from paths import *
 import base64
 from web_scrapers import *
 from flask_caching import Cache
+from discord import *
+
 
 from flask_jwt_extended import (
     JWTManager, create_access_token, create_refresh_token, jwt_required, get_jwt_identity
@@ -203,7 +205,9 @@ def signup():
         session["username"] = username
         session.pop('c_otp', None)
         # session["token"] = token
+        send_discord_notification(username,email)
         return jsonify(success=True)
+
     else:
         return jsonify(success=False, message="Signup failed. User may already exist.")
 
