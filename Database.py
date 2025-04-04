@@ -193,6 +193,21 @@ class ApiToken(Helpers):
                     return project_name
         return None
 
+    def get_token_by_project_name(self, username, project_name):
+        """
+        Get the token associated with the given project name.
+
+        :param username: Username of the developer.
+        :param project_name: Name of the project.
+        :return: Token if found, None otherwise.
+        """
+        cur = self.con.cursor()
+        cur.execute("SELECT token FROM dev_api_tokens WHERE username=?", (username,))
+        projects = cur.fetchone()
+        if projects:
+            projects_dict = ast.literal_eval(projects[0])
+            return projects_dict.get(project_name)
+        return None
 
 class DevDashboard(ApiToken):
 
@@ -406,3 +421,21 @@ class ProtoBaseAuthentication(DevDashboard):
                 return False, 400
         else:
             return True, 500
+
+class ProtoBaseWebhooks(ProtoBaseAuthentication):
+    def enable_webhooks(self,proj,username,webhook_url):
+        cur = self.con.cursor()
+        key = self.get_token_by_project_name(username,proj)
+        cur.execute("INSERT INTO webhooks values (?,?,?)",(proj,key,webhook_url))
+        self.con.commit()
+        self.con.close()
+
+    def disable_webhooks(self, proj, username):
+        cur = self.con.cursor()
+        key = self.get_token_by_project_name(username, proj)
+        cur.execute("DELETE FROM webhooks WHERE project_name=? AND api_key=?", (proj, key))
+        self.con.commit()
+        self.con.close()
+
+    def post_webhook(self):
+        pass

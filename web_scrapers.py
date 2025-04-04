@@ -4,7 +4,7 @@ from requests.exceptions import ProxyError, RequestException
 
 def pub_dev_downloads():
     url = "https://pub.dev/packages/proto_base_client/score"
-    scraper_api_url = f"http://api.scraperapi.com?api_key=7cf09f929c336f8ab268d62f10a0b4b9&url={url}"
+    scraper_api_url = f"https://scrapenest.pythonanywhere.com/scrape?url={url}"
     try:
         response = requests.get(scraper_api_url)
         response.raise_for_status()

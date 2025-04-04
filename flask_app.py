@@ -1,6 +1,6 @@
 from flask import *
 from flask_cors import CORS
-from Database import ProtoBaseAuthentication, DevDashboard, ApiToken
+from Database import ProtoBaseAuthentication, DevDashboard, ApiToken, ProtoBaseWebhooks
 from schemas import openapi_schema
 import sqlite3 as sq
 import os
@@ -204,7 +204,6 @@ def signup():
         session["user_signed_in"] = True
         session["username"] = username
         session.pop('c_otp', None)
-        # session["token"] = token
         send_discord_notification(username,email)
         return jsonify(success=True)
 
@@ -299,6 +298,36 @@ def manage_project(project_name):
     return render_template('manage_project.html', project_name=project_name, auth_with_email=auth_with_email,
                            auth_without_email=auth_without_email)
 
+
+"""
+__________________________
+    WEBHOOK ROUTES
+__________________________
+"""
+@app.route('/enable_webhook', methods=['POST'])
+def enable_webhook():
+    if not session.get("user_signed_in"):
+        return redirect(url_for("get_started"))
+    username = session.get("username")
+    project_name = request.form.get('project_name')
+    webhook_url = request.form.get('webhook_url')
+    con = get_db()
+    db = ProtoBaseWebhooks(con)
+    db.enable_webhooks(project_name,username,webhook_url)
+
+    return redirect(url_for('manage_project', project_name=project_name))
+
+@app.route('/disable_webhook', methods=['POST'])
+def disable_webhook():
+    if not session.get("user_signed_in"):
+        return redirect(url_for("get_started"))
+    username = session.get("username")
+    project_name = request.form.get('project_name')
+    con = get_db()
+    db = ProtoBaseWebhooks(con)
+    db.disable_webhooks(project_name, username)
+
+    return redirect(url_for('manage_project', project_name=project_name))
 
 """
 __________________________
