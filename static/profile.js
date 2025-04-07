@@ -57,4 +57,24 @@ document.addEventListener('DOMContentLoaded', function () {
         };
         reader.readAsDataURL(file);
     }
+    document.addEventListener('DOMContentLoaded', function() {
+        const uploadBtn = document.getElementById('uploadBtn');
+        const uploadPopup = document.getElementById('uploadPopup');
+        const closeBtn = document.querySelector('.close');
+
+        uploadBtn.addEventListener('click', function() {
+            uploadPopup.style.display = 'flex'; // Use flex instead of block
+        });
+
+        closeBtn.addEventListener('click', function() {
+            uploadPopup.style.display = 'none';
+        });
+
+        // Close popup when clicking outside content
+        uploadPopup.addEventListener('click', function(e) {
+            if (e.target === uploadPopup) {
+                uploadPopup.style.display = 'none';
+            }
+        });
+    });
 });
