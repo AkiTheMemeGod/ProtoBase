@@ -13,7 +13,7 @@
 <body>
     <header>
         <nav class="navbar">
-            <div class="logo">ProtoBase</div>
+        <div class="logo" onclick="window.location.href='/'">ProtoBase</div>
             <ul class="nav-links">
                 <li>{% if username %}<a href="/profile">Welcome, {{ username }}</a>{% else %}<a href="/get-started">Sign In</a>{% endif %}</li>
                 <li><a href="/">Home</a></li>
