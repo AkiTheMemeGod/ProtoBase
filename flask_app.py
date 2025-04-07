@@ -264,7 +264,7 @@ def delete_project():
     con = get_db()
     db = DevDashboard(con)
     db.delete_project(username, project_name)
-    return redirect(url_for('projects'))
+    return redirect(url_for('new_project'))
 
 
 @app.route('/add_project', methods=['POST'])
@@ -383,7 +383,7 @@ def profile():
 
     user_info = (user_info[0], user_info[1], user_info[2])
 
-    return render_template('profile.html', user_info=user_info)
+    return render_template('profile.html', user_info=user_info, username=username)
 
 
 @app.route('/databases')
