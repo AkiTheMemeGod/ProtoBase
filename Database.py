@@ -1,4 +1,3 @@
-import os
 import sqlite3 as sq
 import secrets as st
 from security import ProtobaseSecurity, Protobase2FA
@@ -105,7 +104,8 @@ class ApiToken(Helpers):
             del projects_dict[project_name]
             cur.execute("UPDATE dev_api_tokens SET token=? WHERE username=?", (str(projects_dict), username))
             db_path = f'databases/{username}/{project_name}.db'
-            os.remove(db_path)
+            if os.path.exists(db_path):
+                os.remove(db_path)
             self.con.commit()
             return True
         return False
