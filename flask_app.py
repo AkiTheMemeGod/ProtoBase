@@ -3,12 +3,9 @@ from flask_cors import CORS
 from Database import ProtoBaseAuthentication, DevDashboard, ApiToken, ProtoBaseWebhooks
 from schemas import openapi_schema
 import sqlite3 as sq
-import os
 import platform as p
 from paths import *
 import base64
-from web_scrapers import *
-from flask_caching import Cache
 from discord import *
 
 # push to github
@@ -22,8 +19,6 @@ app.config["JWT_SECRET_KEY"] = "k3h45k3hb6k4hb6k3b6k4bkj3523jbkralkfsldfs"
 app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=1)
 app.config["JWT_REFRESH_TOKEN_EXPIRES"] = timedelta(days=7)
 app.secret_key = "#$TL#$T#4MH3l3h4o8jkwbfdo8ho8234jbsdf"
-
-cache = Cache(app, config={'CACHE_TYPE': 'simple'})
 
 if p.system() == 'Linux':
     path = linux
@@ -64,10 +59,9 @@ def close_db(exception=None):
 
 
 @app.route('/')
-@cache.cached(timeout=3600)
 def homepage():
-    downloads = pub_dev_downloads()
-    return render_template("index.html", pub_dev_downloads=downloads)
+    # downloads = pub_dev_downloads()
+    return render_template("index.html")
 
 
 @app.route('/get-started')
