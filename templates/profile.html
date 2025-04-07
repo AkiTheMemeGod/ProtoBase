@@ -1,36 +1,72 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
     <meta charset="UTF-8">
-    <title>Profile</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ProtoBase - Profile</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/static/profile.css">
-        <link rel="stylesheet" href="/static/fontawesome/css/all.min.css">
-
+    <link rel="stylesheet" href="/static/fontawesome/css/all.min.css">
 </head>
 <body>
     <header>
-            <nav><ul><li><a href="/" style="font-size: 30px">Protobase</a></li></ul></nav>
-        <nav>
-            <ul>
-                            <li><a href="/dashboard">Dashboard</a></li>
+        <nav class="navbar">
+            <div class="logo">ProtoBase</div>
+            <ul class="nav-links">
+                <li><a href="/dashboard">Dashboard</a></li>
                 <li><a href="/databases">Databases</a></li>
                 <li><a href="/projects">Projects</a></li>
                 <li><a href="/new_project">New Project</a></li>
                 <li><a href="/docs">Documentation</a></li>
-
+                <li><a href="/logout" class="logout-link"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+                <li>
+                    <button class="theme-toggle" aria-label="Toggle theme">
+                        <svg class="sun-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="5"/>
+                            <line x1="12" y1="1" x2="12" y2="3"/>
+                            <line x1="12" y1="21" x2="12" y2="23"/>
+                            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
+                            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+                            <line x1="1" y1="12" x2="3" y2="12"/>
+                            <line x1="21" y1="12" x2="23" y2="12"/>
+                            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
+                            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+                        </svg>
+                        <svg class="moon-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+                        </svg>
+                    </button>
+                </li>
             </ul>
+            <button class="menu-toggle" aria-label="Toggle menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
         </nav>
     </header>
-    <div class="container">
-        <h1>Profile Page</h1>
-        <div>
-            <img src="data:image/png;base64,{{ user_info[2] | b64encode }}" alt="Profile Picture" class="profile-picture">
-            <p><strong>Username:</strong> {{ user_info[0] }}</p>
-            <p><strong>Email:</strong> {{ user_info[1] }}</p>
-        </div>
-        <div>
-            <h2>Change Profile Picture</h2>
-            <button id="uploadBtn" class="change-pic-button">Change Profile Picture</button>
+
+    <main>
+        <div class="container">
+            <h1>Hey, {{ username.title() }}</h1>
+            <div class="profile-info">
+                <img src="data:image/png;base64,{{ user_info[2] | b64encode }}" alt="Profile Picture" class="profile-picture">
+                <div class="user-details">
+                    <p><strong>Username:</strong> {{ user_info[0] }}</p>
+                    <p><strong>Email:</strong> {{ user_info[1] }}</p>
+                </div>
+            </div>
+
+            <div class="profile-actions">
+                <h2>Change Profile Picture</h2>
+                <button id="uploadBtn" class="cta-button">
+                    <span class="cta-circle"></span>
+                    <span class="cta-text">Change Profile Picture</span>
+                </button>
+            </div>
+
             <div id="uploadPopup" class="popup">
                 <div class="popup-content">
                     <span class="close">&times;</span>
@@ -38,15 +74,53 @@
                     <form id="uploadForm" method="POST" action="{{ url_for('profile') }}" enctype="multipart/form-data">
                         <input type="file" id="pfp" name="pfp" accept="image/*" style="display: none;" required>
                         <div id="dropArea">Drag & Drop or Click to Upload</div>
-                        <img id="preview" src="#" alt="Image Preview" style="display: none; width: 60%; height: 60%; border-radius: 30px; margin-top: 10px; align-self: center">
-                        <button type="submit">Upload</button>
+                        <img id="preview" src="#" alt="Image Preview" style="display: none;">
+                        <button type="submit" class="cta-button">
+                            <span class="cta-circle"></span>
+                            <span class="cta-text">Upload</span>
+                        </button>
                     </form>
                 </div>
             </div>
-        </div>
-                <button class="logout-button" onclick="window.location.href='/dashboard'"><i class="fas fa-backward"></i> <strong> Back</strong></button>
 
-    </div>
+            <button class="back-button" onclick="window.location.href='/dashboard'">
+                <i class="fas fa-backward"></i> <span>Back</span>
+            </button>
+        </div>
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <p>&copy; <span id="year"></span> ProtoBase. All rights reserved.</p>
+        </div>
+    </footer>
+
     <script src="/static/profile.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const themeToggle = document.querySelector('.theme-toggle');
+            const htmlElement = document.documentElement;
+
+            document.getElementById('year').textContent = new Date().getFullYear();
+
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            htmlElement.setAttribute('data-theme', savedTheme);
+
+            themeToggle.addEventListener('click', () => {
+                const currentTheme = htmlElement.getAttribute('data-theme');
+                const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+
+                htmlElement.setAttribute('data-theme', newTheme);
+                localStorage.setItem('theme', newTheme);
+            });
+
+            const menuToggle = document.querySelector('.menu-toggle');
+            const navLinks = document.querySelector('.nav-links');
+
+            menuToggle.addEventListener('click', () => {
+                navLinks.classList.toggle('active');
+            });
+        });
+    </script>
 </body>
 </html>

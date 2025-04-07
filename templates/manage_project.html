@@ -1,194 +1,214 @@
 <!DOCTYPE html>
-            <html lang="en">
-            <head>
-                <meta charset="UTF-8">
-                <title>Manage Project</title>
-                <link rel="stylesheet" href="/static/main.css">
-                <link rel="stylesheet" href="/static/fontawesome/css/all.min.css">
-                <style>
-                    .nav-buttons {
-                        display: flex;
-                        justify-content: center;
-                        margin-bottom: 20px;
-                    }
-                    .nav-buttons button {
-                        margin: 0 10px;
-                        padding: 10px 20px;
-                        cursor: pointer;
-                        background: linear-gradient(90deg, #6a00ff, #9e2fff);
-                        color: white;
-                        border: none;
-                        border-radius: 5px;
-                        transition: background 0.3s, transform 0.3s;
-                    }
-                    .nav-buttons button:hover {
-                        background: linear-gradient(90deg, #5a00e0, #8e2fd0);
-                        transform: scale(1.05);
-                    }
-                    .table-container {
-                        display: none;
-                    }
-                    .table-container.active {
-                        display: block;
-                    }
-                    table {
-                        width: 100%;
-                        border-collapse: collapse;
-                        margin-bottom: 20px;
-                    }
-                    th, td {
-                        border: 1px solid #ddd;
-                        padding: 8px;
-                        text-align: left;
-                    }
-                    th {
-                        background: linear-gradient(0deg, #6a00ff, #9e2fff);
-                        color: white;
-                    }
-                    .modal {
-                        display: none;
-                        position: fixed;
-                        z-index: 1;
-                        left: 0;
-                        top: 0;
-                        width: 100%;
-                        height: 100%;
-                        overflow: auto;
-                        background-color: rgb(0,0,0);
-                        background-color: rgba(0,0,0,0.4);
-                        padding-top: 60px;
-                    }
-                    .modal-content {
-                        background-color: #fefefe;
-                        margin: 5% auto;
-                        padding: 20px;
-                        border: 1px solid #888;
-                        width: 80%;
-                    }
-                    .close {
-                        color: #aaa;
-                        float: right;
-                        font-size: 28px;
-                        font-weight: bold;
-                    }
-                    .close:hover,
-                    .close:focus {
-                        color: black;
-                        text-decoration: none;
-                        cursor: pointer;
-                    }
-                </style>
-            </head>
-            <body>
-                <header>
-                    <input type="hidden" id="webhook_status" value="{{ webhook_status }}">
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ProtoBase - Manage Project</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/dashboard.css">
+    <link rel="stylesheet" href="/static/fontawesome/css/all.min.css">
+</head>
+<body>
+    <header>
+        <nav class="navbar">
+            <div class="logo">ProtoBase</div>
+            <ul class="nav-links">
+                <li>{% if username %}<a href="/profile">Welcome, {{ username }}</a>{% else %}<a href="/get-started">Sign In</a>{% endif %}</li>
+                <li><a href="/dashboard">Dashboard</a></li>
+                <li><a href="/databases">Databases</a></li>
+                <li><a href="/projects">Projects</a></li>
+                <li><a href="/docs">Documentation</a></li>
+                <li><a href="/logout" class="logout-link"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+                <li>
+                    <button class="theme-toggle" aria-label="Toggle theme">
+                        <svg class="sun-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="5"/>
+                            <line x1="12" y1="1" x2="12" y2="3"/>
+                            <line x1="12" y1="21" x2="12" y2="23"/>
+                            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
+                            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+                            <line x1="1" y1="12" x2="3" y2="12"/>
+                            <line x1="21" y1="12" x2="23" y2="12"/>
+                            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
+                            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+                        </svg>
+                        <svg class="moon-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+                        </svg>
+                    </button>
+                </li>
+            </ul>
+            <button class="menu-toggle" aria-label="Toggle menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </nav>
+    </header>
 
-                    <nav><ul><li><a href="/" style="font-size: 30px">Protobase</a></li></ul></nav>
-                    <nav>
-                        <ul>
-                            <li><a href="/">Home</a></li>
-                            <li><a href="/docs">Documentation</a></li>
-                        </ul>
-                    </nav>
-                </header>
-                <div class="container">
-                    <h1>Manage Project: {{ project_name }}</h1>
-                    <div class="nav-buttons">
-                        <button id="toggle-button" onclick="toggleSection()">Show Auth without Email</button>
-                        <button id="webhook-button" onclick="toggleWebhook()">
-                            {{ 'Disable Webhooks' if webhook_status == 'enabled' else 'Enable Webhooks' }}
-                        </button>
-                    </div>
-                    <div id="auth-with-email" class="table-container active">
-                        <h2>Auth with Email</h2>
-                        <table>
-                            <tr>
-                                <th>Username</th>
-                                <th>Email</th>
-                                <th>Password</th>
-                            </tr>
-                            {% for user in auth_with_email %}
-                            <tr>
-                                <td>{{ user.0 }}</td>
-                                <td>{{ user.1 }}</td>
-                                <td>{{ user.2 }}</td>
-                            </tr>
-                            {% endfor %}
-                        </table>
-                    </div>
-                    <div id="auth-without-email" class="table-container">
-                        <h2>Auth without Email</h2>
-                        <table>
-                            <tr>
-                                <th>Username</th>
-                                <th>Password</th>
-                            </tr>
-                            {% for user in auth_without_email %}
-                            <tr>
-                                <td>{{ user.0 }}</td>
-                                <td>{{ user.1 }}</td>
-                            </tr>
-                            {% endfor %}
-                        </table>
-                    </div>
-                    <button class="logout-button" onclick="window.location.href='/projects'"><i class="fas fa-backward"></i> <strong> Back</strong></button>
+    <main>
+        <div class="container">
+            <input type="hidden" id="webhook_status" value="{{ webhook_status }}">
+            <h1>Manage Project: {{ project_name }}</h1>
+
+            <div class="nav-buttons">
+                <button id="toggle-button" class="cta-button" onclick="toggleSection()">
+                    <span class="cta-circle"></span>
+                    <span class="cta-text">Show Auth without Email</span>
+                </button>
+                <button id="webhook-button" class="cta-button" onclick="toggleWebhook()">
+                    <span class="cta-circle"></span>
+                    <span class="cta-text">
+                        {{ 'Disable Webhooks' if webhook_status == 'enabled' else 'Enable Webhooks' }}
+                    </span>
+                </button>
+            </div>
+
+            <div id="auth-with-email" class="table-container active">
+                <h2>Auth with Email</h2>
+                <div class="table-responsive">
+                    <table>
+                        <tr>
+                            <th>Username</th>
+                            <th>Email</th>
+                            <th>Password</th>
+                        </tr>
+                        {% for user in auth_with_email %}
+                        <tr>
+                            <td>{{ user.0 }}</td>
+                            <td>{{ user.1 }}</td>
+                            <td>{{ user.2 }}</td>
+                        </tr>
+                        {% endfor %}
+                    </table>
                 </div>
+            </div>
 
-                <!-- The Modal -->
-                <div id="webhookModal" class="modal">
-                    <div class="modal-content">
-                        <span class="close" onclick="document.getElementById('webhookModal').style.display='none'">&times;</span>
-                        <form id="webhookForm" action="{{ url_for('enable_webhook') if webhook_status == 'disabled' else url_for('disable_webhook') }}" method="post">
-                            <label for="webhook_url">Webhook URL:</label>
-                            <input type="text" id="webhook_url" name="webhook_url" required>
-                            <input type="hidden" name="project_name" value="{{ project_name }}">
-                            <button type="submit">Submit</button>
-                        </form>
-                    </div>
+            <div id="auth-without-email" class="table-container">
+                <h2>Auth without Email</h2>
+                <div class="table-responsive">
+                    <table>
+                        <tr>
+                            <th>Username</th>
+                            <th>Password</th>
+                        </tr>
+                        {% for user in auth_without_email %}
+                        <tr>
+                            <td>{{ user.0 }}</td>
+                            <td>{{ user.1 }}</td>
+                        </tr>
+                        {% endfor %}
+                    </table>
                 </div>
-                <script>
+            </div>
 
-                function toggleWebhook() {
-                    const webhookStatus = document.getElementById('webhook_status').value;
-                    const webhookButton = document.getElementById('webhook-button');
-                    const webhookModal = document.getElementById('webhookModal');
-                    const webhookForm = document.getElementById('webhookForm');
+            <button class="back-button" onclick="window.location.href='/projects'">
+                <i class="fas fa-backward"></i> <span>Back</span>
+            </button>
+        </div>
+    </main>
 
-                    if (webhookStatus === 'enabled') {
-                        webhookForm.action = '/disable_webhook';
-                        webhookButton.textContent = 'Enable Webhooks';
-                    }
-                    else {
-                        webhookForm.action = '/enable_webhook';
-                        webhookButton.textContent = 'Disable Webhooks';
-                    }
+    <div id="webhookModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h3>Webhook Configuration</h3>
+            <form id="webhookForm" action="{{ url_for('enable_webhook') if webhook_status == 'disabled' else url_for('disable_webhook') }}" method="post">
+                <div class="form-group">
+                    <label for="webhook_url">Webhook URL:</label>
+                    <input type="text" id="webhook_url" name="webhook_url" required>
+                </div>
+                <input type="hidden" name="project_name" value="{{ project_name }}">
+                <button type="submit" class="cta-button">
+                    <span class="cta-circle"></span>
+                    <span class="cta-text">Submit</span>
+                </button>
+            </form>
+        </div>
+    </div>
 
-                    webhookModal.style.display = 'block';
-                }
+    <footer>
+        <div class="footer-content">
+            <p>&copy; <span id="year"></span> ProtoBase. All rights reserved.</p>
+        </div>
+    </footer>
 
-                function toggleSection() {
-                    const authWithEmail = document.getElementById('auth-with-email');
-                    const authWithoutEmail = document.getElementById('auth-without-email');
-                    const toggleButton = document.getElementById('toggle-button');
+    <script>
+        // Theme toggling functionality
+        document.addEventListener('DOMContentLoaded', () => {
+            const themeToggle = document.querySelector('.theme-toggle');
+            const htmlElement = document.documentElement;
+            const closeBtn = document.querySelector('.close');
+            const modal = document.getElementById('webhookModal');
 
-                    if (authWithEmail.classList.contains('active')) {
-                        authWithEmail.classList.remove('active');
-                        authWithoutEmail.classList.add('active');
-                        toggleButton.textContent = 'Show Auth with Email';
-                    } else {
-                        authWithEmail.classList.add('active');
-                        authWithoutEmail.classList.remove('active');
-                        toggleButton.textContent = 'Show Auth without Email';
-                    }
-                }
+            // Set current year in footer
+            document.getElementById('year').textContent = new Date().getFullYear();
 
-                // Close the modal when clicking outside of it
-                window.onclick = function(event) {
-                    const modal = document.getElementById('webhookModal');
-                    if (event.target == modal) {
-                        modal.style.display = "none";
-                    }
-                }
-                </script>
-            </body>
-            </html>
+            // Check for saved theme preference or use default
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            htmlElement.setAttribute('data-theme', savedTheme);
+
+            // Theme toggle event listener
+            themeToggle.addEventListener('click', () => {
+                const currentTheme = htmlElement.getAttribute('data-theme');
+                const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+
+                htmlElement.setAttribute('data-theme', newTheme);
+                localStorage.setItem('theme', newTheme);
+            });
+
+            // Mobile menu toggle
+            const menuToggle = document.querySelector('.menu-toggle');
+            const navLinks = document.querySelector('.nav-links');
+
+            menuToggle.addEventListener('click', () => {
+                navLinks.classList.toggle('active');
+            });
+
+            // Close modal on X click
+            closeBtn.addEventListener('click', () => {
+                modal.style.display = "none";
+            });
+        });
+
+        function toggleWebhook() {
+            const webhookStatus = document.getElementById('webhook_status').value;
+            const webhookModal = document.getElementById('webhookModal');
+            const webhookForm = document.getElementById('webhookForm');
+
+            if (webhookStatus === 'enabled') {
+                webhookForm.action = '/disable_webhook';
+            } else {
+                webhookForm.action = '/enable_webhook';
+            }
+
+            webhookModal.style.display = 'flex';
+        }
+
+        function toggleSection() {
+            const authWithEmail = document.getElementById('auth-with-email');
+            const authWithoutEmail = document.getElementById('auth-without-email');
+            const toggleButton = document.getElementById('toggle-button');
+
+            if (authWithEmail.classList.contains('active')) {
+                authWithEmail.classList.remove('active');
+                authWithoutEmail.classList.add('active');
+                toggleButton.querySelector('.cta-text').textContent = 'Show Auth with Email';
+            } else {
+                authWithEmail.classList.add('active');
+                authWithoutEmail.classList.remove('active');
+                toggleButton.querySelector('.cta-text').textContent = 'Show Auth without Email';
+            }
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('webhookModal');
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
+        }
+    </script>
+</body>
+</html>

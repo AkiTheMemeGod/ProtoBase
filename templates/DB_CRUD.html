@@ -1,64 +1,161 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SQLite CRUD Operations</title>
-    <link rel="stylesheet" href="/static/db_crud.css">
+    <title>ProtoBase - Database CRUD</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/dashboard.css">
     <link rel="stylesheet" href="/static/fontawesome/css/all.min.css">
 </head>
 <body>
     <header>
-        <h1>ProtoBase</h1>
-        <nav>
-            <ul>
-                <li><a href="/">Home</a></li>
+        <nav class="navbar">
+            <div class="logo">ProtoBase</div>
+            <ul class="nav-links">
+                <li>{% if username %}<a href="/profile">Welcome, {{ username }}</a>{% else %}<a href="/get-started">Sign In</a>{% endif %}</li>
+                <li><a href="/dashboard">Dashboard</a></li>
+                <li><a href="/databases">Databases</a></li>
+                <li><a href="/projects">Projects</a></li>
                 <li><a href="/docs">Documentation</a></li>
+                <li><a href="/logout" class="logout-link"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+                <li>
+                    <button class="theme-toggle" aria-label="Toggle theme">
+                        <svg class="sun-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="5"/>
+                            <line x1="12" y1="1" x2="12" y2="3"/>
+                            <line x1="12" y1="21" x2="12" y2="23"/>
+                            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
+                            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+                            <line x1="1" y1="12" x2="3" y2="12"/>
+                            <line x1="21" y1="12" x2="23" y2="12"/>
+                            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
+                            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+                        </svg>
+                        <svg class="moon-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+                        </svg>
+                    </button>
+                </li>
             </ul>
+            <button class="menu-toggle" aria-label="Toggle menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
         </nav>
     </header>
-    <div class="container">
-        <h1>DATABASE FOR {{ project_name }}</h1>
-        <form id="create_table_form" action="/create_table" method="post">
-            <h2>Create Table</h2>
-            <input type="hidden" name="project_name" value="{{ project_name }}">
-            <label for="table_name">Table Name:</label>
-            <input type="text" id="table_name" name="table_name" required>
-            <label for="columns">Define Columns:</label>
-            <div id="table_columns">
-                <input type="text" name="column_name[]" placeholder="Column Name" required>
-                <select name="column_type[]">
-                    <option value="INTEGER">INTEGER</option>
-                    <option value="TEXT">TEXT</option>
-                    <option value="REAL">REAL</option>
-                </select>
-            </div>
-            <button type="button" onclick="addColumnField()">Add Column</button>
-            <button type="submit">Create Table</button>
-        </form>
-        <br><br><br>
-        <form action="/read_data" method="post">
-            <h2>Read Data</h2>
-            <input type="hidden" name="project_name" value="{{ project_name }}">
-            <label for="table">Table Name:</label>
-            <select id="read_table" name="table" required>
-                <!-- Options populated dynamically -->
-            </select>
-            <button type="submit">Read Data</button>
-        </form>
-        <button class="logout-button" onclick="window.location.href='/databases'"><i class="fas fa-backward"></i> <strong> Back</strong></button>
 
-    </div>
+    <main>
+        <div class="container">
+            <h1>Database for {{ project_name }}</h1>
+
+            <div class="db-card">
+                <h2>Create Table</h2>
+                <form id="create_table_form" action="/create_table" method="post">
+                    <input type="hidden" name="project_name" value="{{ project_name }}">
+
+                    <div class="form-group">
+                        <label for="table_name">Table Name:</label>
+                        <input type="text" id="table_name" name="table_name" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="columns">Define Columns:</label>
+                        <div id="table_columns" class="column-fields">
+                            <div class="column-row">
+                                <input type="text" name="column_name[]" placeholder="Column Name" required>
+                                <select name="column_type[]">
+                                    <option value="INTEGER">INTEGER</option>
+                                    <option value="TEXT">TEXT</option>
+                                    <option value="REAL">REAL</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <button type="button" class="add-column-btn" onclick="addColumnField()">
+                            <i class="fas fa-plus"></i> Add Column
+                        </button>
+                    </div>
+
+                    <button type="submit" class="cta-button">
+                        <span class="cta-circle"></span>
+                        <span class="cta-text">Create Table</span>
+                    </button>
+                </form>
+            </div>
+
+            <div class="db-card">
+                <h2>Read Data</h2>
+                <form action="/read_data" method="post">
+                    <input type="hidden" name="project_name" value="{{ project_name }}">
+
+                    <div class="form-group">
+                        <label for="read_table">Table Name:</label>
+                        <select id="read_table" name="table" required>
+                        </select>
+                    </div>
+
+                    <button type="submit" class="cta-button">
+                        <span class="cta-circle"></span>
+                        <span class="cta-text">Read Data</span>
+                    </button>
+                </form>
+            </div>
+
+            <button class="back-button" onclick="window.location.href='/databases'">
+                <i class="fas fa-backward"></i> <span>Back</span>
+            </button>
+        </div>
+    </main>
 
     <div id="flyout" class="flyout"></div>
+
+    <footer>
+        <div class="footer-content">
+            <p>&copy; <span id="year"></span> ProtoBase. All rights reserved.</p>
+        </div>
+    </footer>
+
     <script>
         document.addEventListener('DOMContentLoaded', () => {
+            const themeToggle = document.querySelector('.theme-toggle');
+            const htmlElement = document.documentElement;
+
+            // Set current year in footer
+            document.getElementById('year').textContent = new Date().getFullYear();
+
+            // Check for saved theme preference or use default
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            htmlElement.setAttribute('data-theme', savedTheme);
+
+            // Theme toggle event listener
+            themeToggle.addEventListener('click', () => {
+                const currentTheme = htmlElement.getAttribute('data-theme');
+                const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+
+                htmlElement.setAttribute('data-theme', newTheme);
+                localStorage.setItem('theme', newTheme);
+            });
+
+            // Mobile menu toggle
+            const menuToggle = document.querySelector('.menu-toggle');
+            const navLinks = document.querySelector('.nav-links');
+
+            menuToggle.addEventListener('click', () => {
+                navLinks.classList.toggle('active');
+            });
+
+            // Populate table options
             populateTableOptions();
         });
 
         function addColumnField() {
             const tableColumns = document.getElementById('table_columns');
             const fieldGroup = document.createElement('div');
+            fieldGroup.className = 'column-row';
             fieldGroup.innerHTML = `
                 <input type="text" name="column_name[]" placeholder="Column Name" required>
                 <select name="column_type[]">
@@ -96,15 +193,16 @@
             })
             .then(response => {
                 if (response.ok) {
-                    showFlyout('Table created successfully', 'copy');
+                    showFlyout('Table created successfully', 'success');
                     this.reset();
+                    populateTableOptions();
                 } else {
-                    showFlyout('Error creating table', 'delete');
+                    showFlyout('Error creating table', 'error');
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
-                showFlyout('Error creating table', 'delete');
+                showFlyout('Error creating table', 'error');
             });
         });
 
